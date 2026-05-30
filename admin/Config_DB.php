@@ -21,10 +21,10 @@ header("Content-Type:text/html; charset=utf8");
 $db_address = "localhost";
 
 //数据库用户名
-$db_username = "proni";
+$db_username = "root";
 
 //数据库密码
-$db_password = "851055720ccZ@";
+$db_password = "root";
 
 //数据库表名 （默认与数据库用户名相同）
 $db_name = "likegirl";

@@ -18,17 +18,15 @@ include_once 'head.php';
                 <svg class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16"><path d="M928 160H96c-17.7 0-32 14.3-32 32v640c0 17.7 14.3 32 32 32h832c17.7 0 32-14.3 32-32V192c0-17.7-14.3-32-32-32z m-40 632H136V232h752v560z" fill="#666"/></svg>
                 返回相册
             </span>
-            <span id="currentAlbum" style="display:none; color: #333; margin-left: 10px; font-weight: 500;"></span>
+            <span id="currentAlbumName" style="display:none; color: #333; margin-left: 10px; font-weight: 500;"></span>
         </div>
         
         <!-- 相册文件夹区域 -->
         <div class="row central gallery" id="albumGallery">
-            <!-- 相册文件夹将通过 JavaScript 动态加载 -->
         </div>
         
         <!-- 图片展示区域 -->
         <div class="row central gallery" id="photoGallery" style="display:none;">
-            <!-- 图片将通过 JavaScript 动态加载 -->
         </div>
         
         <div class="loading" id="loading">数据加载中...</div>
@@ -40,6 +38,8 @@ include_once 'head.php';
             </button>
         </div>
     </div>
+    
+    <script src="Style/js/loveAlbum.js"></script>
     
     <?php
     include_once 'footer.php';

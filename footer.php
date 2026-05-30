@@ -36,7 +36,7 @@
         
         $(function () {
             
-            initLoveAlbum();
+            if (typeof initLoveAlbum === 'function') initLoveAlbum();
             
             initScrollButton('#MessageBtn', '#MessageArea', 800, 800);
 
