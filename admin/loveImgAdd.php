@@ -19,8 +19,9 @@ while ($row = mysqli_fetch_array($albumRes)) {
                 <h4 class="header-title mb-3 size_18">新增图片</h4>
                 <form class="needs-validation" action="ImgAddPost.php" method="post" onsubmit="return check()" novalidate>
                     <div class="form-group mb-3">
-                        <label>所属相册 <span class="text-danger">*</span></label>
-                        <select name="album_id" class="form-control" required>
+                        <label>所属相册 <span class="text-muted" style="font-size:12px;">（不选则不在前台显示）</span></label>
+                        <select name="album_id" class="form-control">
+                            <option value="0">-- 未分类（仅后台可见） --</option>
                             <?php foreach ($albums as $album): ?>
                                 <option value="<?php echo $album['id'] ?>"><?php echo $album['album_name'] ?></option>
                             <?php endforeach; ?>

@@ -1,7 +1,10 @@
 <?php
 session_start();
 include_once 'Nav.php';
-$loveImg = "select * from loveImg order by id desc";
+// 关联查询获取相册名称
+$loveImg = "SELECT li.*, la.album_name FROM loveImg li 
+            LEFT JOIN love_album la ON li.album_id = la.id 
+            ORDER BY li.id desc";
 $resImg = mysqli_query($connect, $loveImg);
 ?>
 
@@ -11,20 +14,58 @@ $resImg = mysqli_query($connect, $loveImg);
 <link href="assets/css/vendor/buttons.bootstrap4.css" rel="stylesheet" type="text/css"/>
 <link href="assets/css/vendor/select.bootstrap4.css" rel="stylesheet" type="text/css"/>
 
+<style>
+    .img-thumbnail {
+        width: 80px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 6px;
+        border: 1px solid #dee2e6;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+    .img-thumbnail:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .album-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+    .album-none {
+        background: #e9ecef;
+        color: #6c757d;
+    }
+</style>
+
 <div class="row">
     <div class="col-12">
         <div class="card">
             <div class="card-body">
-                <h4 class="header-title mb-3 size_18">恋爱相册<a href="/admin/loveImgAdd.php">
-                        <button type="button" class="btn btn-success btn-sm right_10">
-                            <i class="mdi mdi-circle-edit-outline"></i>新增
+                <h4 class="header-title mb-3 size_18">恋爱相册
+                    <a href="/admin/batchAddImg.php">
+                        <button type="button" class="btn btn-info btn-sm right_10">
+                            <i class="mdi mdi-upload-multiple"></i>批量新增
                         </button>
-                    </a></h4>
+                    </a>
+                    <a href="/admin/loveImgAdd.php">
+                        <button type="button" class="btn btn-success btn-sm right_10">
+                            <i class="mdi mdi-circle-edit-outline"></i>单张新增
+                        </button>
+                    </a>
+                </h4>
                 <table id="basic-datatable" class="table dt-responsive nowrap" width="100%">
                     <thead>
                     <tr>
                         <th>序号</th>
+                        <th>图片预览</th>
                         <th>图片描述</th>
+                        <th>所属相册</th>
                         <th>日期</th>
                         <th style="width:150px;">操作</th>
                     </tr>
@@ -36,6 +77,9 @@ $resImg = mysqli_query($connect, $loveImg);
                     $SerialNumber = 0;
                     while ($list = mysqli_fetch_array($resImg)) {
                         $SerialNumber++;
+                        // 处理相册显示
+                        $albumName = $list['album_name'] ? $list['album_name'] : '未分类';
+                        $albumClass = $list['album_name'] ? 'album-badge' : 'album-badge album-none';
                         ?>
                         <tr>
                             <td>
@@ -43,7 +87,18 @@ $resImg = mysqli_query($connect, $loveImg);
                                     <?php echo $SerialNumber ?>
                                 </div>
                             </td>
+                            <td>
+                                <img src="<?php echo $list['imgUrl'] ?>" 
+                                     class="img-thumbnail" 
+                                     alt="预览" 
+                                     onclick="window.open('<?php echo $list['imgUrl'] ?>', '_blank')">
+                            </td>
                             <td><?php echo $list['imgText'] ?></td>
+                            <td>
+                                <span class="<?php echo $albumClass ?>">
+                                    <i class="mdi mdi-folder"></i> <?php echo $albumName ?>
+                                </span>
+                            </td>
                             <td><?php echo $list['imgDatd'] ?></td>
                             <td>
                                 <a href="modImg.php?id=<?php echo $list['id'] ?>">
@@ -92,7 +147,6 @@ include_once 'Footer.php';
 <script src="assets/js/vendor/buttons.print.min.js"></script>
 <script src="assets/js/vendor/dataTables.keyTable.min.js"></script>
 <script src="assets/js/vendor/dataTables.select.min.js"></script>
-<!-- third party js ends -->
 <!-- demo app -->
 <script src="assets/js/pages/demo.datatable-init.js"></script>
 <!-- end demo js-->
