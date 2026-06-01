@@ -7,7 +7,6 @@ let currentPage = 1;
 const limit = 9;
 let total = 0;
 let isLoading = false;
-
 // 注意：initLoveAlbum() 由 footer.php 和 head.php(Pjax回调) 统一调用
 
 // 加载相册列表
@@ -70,13 +69,11 @@ function openAlbum(albumId, albumName) {
     currentAlbumName = albumName;
     currentPage = 1;
     total = 0;
-    
     $('#albumGallery').hide();
     $('#photoGallery').show().empty();
     $('#breadcrumb').show();
     $('#currentAlbumName').show().text(' > ' + albumName);
     $('#loadMoreBtn').show();
-    
     loadPhotos();
 }
 
@@ -93,7 +90,7 @@ function showAlbums() {
 function loadPhotos() {
     console.log('[LoveAlbum] 加载照片, album_id:', currentAlbumId, 'page:', currentPage);
     if (isLoading) {
-        console.log('[LoveAlbum] 正在加载中，跳过');
+        console.log('[Love umaum] 正在加载中，跳过');
         return;
     }
     isLoading = true;
@@ -183,7 +180,7 @@ function createPhotoElement(photo) {
         <div class="img_card col-lg-4 col-md-6 col-sm-12 col-sm-x-12 photo-item">
             <div class="love_img">
                 <img class="spotlight" src="Style/img/Loading2.gif" data-funlazy="${photo.img}" alt="${photo.text}" data-description="${photo.date}">
-                
+
                 <div class="words" data-tip="${photo.text}" data-tip-position="top">
                     <i>${photo.date}</i>
                     <span>${photo.text}</span>
@@ -207,10 +204,10 @@ function initLoveAlbum() {
     total = 0;
     currentAlbumId = 0;
     isLoading = false;
-    
     console.log('[LoveAlbum] 开始初始化，加载相册列表');
     loadAlbums();
     
     $('#loadMoreBtn').off('click').on('click', loadPhotos);
     $('#breadcrumb').off('click').on('click', showAlbums);
 }
+

@@ -147,8 +147,6 @@ while ($row = mysqli_fetch_array($albumRes)) {
                         可一次性添加多张图片到相册，所有图片将使用相同的日期和相册设置
                         <span class="image-count" id="imgCount">当前图片数：0 张</span>
                     </div>
-                </div>
-
                 <form class="needs-validation" action="batchAddImgPost.php" method="post" onsubmit="return check()" novalidate>
 
                     <!-- 快速批量粘贴区域 -->
@@ -244,8 +242,8 @@ while ($row = mysqli_fetch_array($albumRes)) {
                            oninput="updatePreview(${imgIndex}, this.value)" required>
                 </div>
                 <div class="form-group mb-2">
-                    <label>图片描述 <span class="text-danger">*</span> <span class="text-muted" style="font-size:12px;">尽量控制在25个字符以内</span></label>
-                    <input type="text" name="imgText_${imgIndex}" class="form-control" placeholder="请输入图片描述" required>
+                    <label>图片描述 <span class="text-muted" style="font-size:12px;">尽量控制在25个字符以内</span></label>
+                    <input type="text" name="imgText_${imgIndex}" class="form-control" placeholder="请输入图片描述">
                 </div>
             </div>
         `;
@@ -316,7 +314,7 @@ while ($row = mysqli_fetch_array($albumRes)) {
             addImgItemWithUrl(url);
         });
         
-        showResult('成功添加 ' + urls.length + ' 张图片！请填写图片描述', 'success');
+        showResult('成功添加 ' + urls.length + ' 张图片！描述可以不填直接保存', 'success');
         
         // 滚动到图片列表
         document.getElementById('imgList').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -339,8 +337,8 @@ while ($row = mysqli_fetch_array($albumRes)) {
                            oninput="updatePreview(${currentIdx}, this.value)" required>
                 </div>
                 <div class="form-group mb-2">
-                    <label>图片描述 <span class="text-danger">*</span> <span class="text-muted" style="font-size:12px;">尽量控制在25个字符以内</span></label>
-                    <input type="text" name="imgText_${currentIdx}" class="form-control" placeholder="请输入图片描述" required>
+                    <label>图片描述 <span class="text-muted" style="font-size:12px;">尽量控制在25个字符以内</span></label>
+                    <input type="text" name="imgText_${currentIdx}" class="form-control" placeholder="请输入图片描述">
                 </div>
             </div>
         `;
@@ -374,21 +372,13 @@ while ($row = mysqli_fetch_array($albumRes)) {
             return false;
         }
 
-        // 检查每张图片的URL和描述
+        // 检查每张图片的URL
         for (let i = 0; i < imgItems.length; i++) {
             const item = imgItems[i];
             const urlInput = item.querySelector('input[name^="imgUrl"]');
-            const textInput = item.querySelector('input[name^="imgText"]');
-            
             if (!urlInput.value.trim()) {
                 alert("第 " + (i + 1) + " 张图片的URL不能为空");
                 urlInput.focus();
-                return false;
-            }
-            
-            if (!textInput.value.trim()) {
-                alert("第 " + (i + 1) + " 张图片的描述不能为空");
-                textInput.focus();
                 return false;
             }
         }

@@ -137,7 +137,7 @@ if (!$result)
 
     function del(id, text) {
         if (confirm('您确认要删除 ' + text + ' 内容吗')) {
-            location.href = 'delleav.php?id=' + id + '&text' + text;
+            location.href = 'delleav.php?id=' + id + '&text=' + text;
         }
     }
 </script>

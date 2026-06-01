@@ -20,15 +20,14 @@ include_once 'head.php';
             </span>
             <span id="currentAlbumName" style="display:none; color: #333; margin-left: 10px; font-weight: 500;"></span>
         </div>
-        
         <!-- 相册文件夹区域 -->
         <div class="row central gallery" id="albumGallery">
         </div>
         
         <!-- 图片展示区域 -->
         <div class="row central gallery" id="photoGallery" style="display:none;">
-        </div>
-        
+    </div>
+    
         <div class="loading" id="loading">数据加载中...</div>
         
         <div class="load-more">
@@ -46,4 +45,4 @@ include_once 'head.php';
     ?>
 </body>
 
-</html>
+</html

@@ -17,16 +17,16 @@ if ($album_id > 0) {
     $totalRes->execute();
     $total = $totalRes->get_result()->fetch_assoc()['total'];
     
-    // 预处理分页查询指定相册的照片
-    $stmt = $connect->prepare("SELECT imgUrl, imgDatd, imgText FROM loveImg WHERE album_id = ? ORDER BY id DESC LIMIT ?, ?");
+    // 预处理分页查询指定相册的照片 - 增加 id
+    $stmt = $connect->prepare("SELECT id, imgUrl, imgDatd, imgText FROM loveImg WHERE album_id = ? ORDER BY id DESC LIMIT ?, ?");
     $stmt->bind_param("iii", $album_id, $offset, $limit);
 } else {
     // 查询所有照片总数
     $totalRes = $connect->query("SELECT COUNT(*) as total FROM loveImg");
     $total = $totalRes->fetch_assoc()['total'];
     
-    // 预处理分页查询所有照片
-    $stmt = $connect->prepare("SELECT imgUrl, imgDatd, imgText FROM loveImg ORDER BY id DESC LIMIT ?, ?");
+    // 预处理分页查询所有照片 - 增加 id
+    $stmt = $connect->prepare("SELECT id, imgUrl, imgDatd, imgText FROM loveImg ORDER BY id DESC LIMIT ?, ?");
     $stmt->bind_param("ii", $offset, $limit);
 }
 
@@ -36,6 +36,7 @@ $result = $stmt->get_result();
 $data = [];
 while ($row = $result->fetch_assoc()) {
     $data[] = [
+        'id' => $row['id'],
         'img' => $row['imgUrl'],
         'date' => $row['imgDatd'],
         'text' => $row['imgText']
@@ -51,3 +52,4 @@ echo json_encode([
     'album_id' => $album_id
 ]);
 ?>
+

@@ -41,6 +41,14 @@ $resImg = mysqli_query($connect, $loveImg);
         background: #e9ecef;
         color: #6c757d;
     }
+    .batch-action-card {
+        background: #f8f9fa;
+        border: 1px solid #ddd;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: none;
+    }
 </style>
 
 <div class="row">
@@ -59,9 +67,30 @@ $resImg = mysqli_query($connect, $loveImg);
                         </button>
                     </a>
                 </h4>
+                <!-- 批量操作面板 -->
+                <div id="batchActionPanel" class="batch-action-card">
+                    <div class="d-flex align-items-center">
+                        <span class="mr-3 font-weight-bold">已选 <span id="selectedCount">0</span> 张</span>
+                        <div class="form-group mb-0 mr-3">
+                            <select id="targetAlbum" class="form-control form-control-sm">
+                                <option value="">-- 选择目标相册 --</option>
+                                <?php
+                                $albumRes = mysqli_query($connect, "SELECT id, album_name FROM love_album ORDER BY sort_order ASC");
+                                while($album = mysqli_fetch_assoc($albumRes)) {
+                                    echo "<option value='" . $album['id'] . "'>" . $album['album_name'] . "</option>";
+                                }
+                                ?>
+                            </select>
+                        </div>
+                        <button type="button" class="btn btn-primary btn-sm mr-2" onclick="batchTransfer()">转移相册</button>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="batchDelete()">批量删除</button>
+                    </div>
+                </div>
+
                 <table id="basic-datatable" class="table dt-responsive nowrap" width="100%">
                     <thead>
                     <tr>
+                        <th width="40px"><input type="checkbox" id="selectAll"></th>
                         <th>序号</th>
                         <th>图片预览</th>
                         <th>图片描述</th>
@@ -71,8 +100,7 @@ $resImg = mysqli_query($connect, $loveImg);
                     </tr>
                     </thead>
 
-
-                    <tbody>
+                    <tbody id="photoTbody">
                     <?php
                     $SerialNumber = 0;
                     while ($list = mysqli_fetch_array($resImg)) {
@@ -81,16 +109,19 @@ $resImg = mysqli_query($connect, $loveImg);
                         $albumName = $list['album_name'] ? $list['album_name'] : '未分类';
                         $albumClass = $list['album_name'] ? 'album-badge' : 'album-badge album-none';
                         ?>
-                        <tr>
+                        <tr id="row-<?php echo $list['id']; ?>">
+                            <td>
+                                <input type="checkbox" class="photo-checkbox" value="<?php echo $list['id']; ?>" onchange="updateBatchPanel()">
+                            </td>
                             <td>
                                 <div class="SerialNumber">
                                     <?php echo $SerialNumber ?>
                                 </div>
                             </td>
                             <td>
-                                <img src="<?php echo $list['imgUrl'] ?>" 
-                                     class="img-thumbnail" 
-                                     alt="预览" 
+                                <img src="<?php echo $list['imgUrl'] ?>"
+                                     class="img-thumbnail"
+                                     alt="预览"
                                      onclick="window.open('<?php echo $list['imgUrl'] ?>', '_blank')">
                             </td>
                             <td><?php echo $list['imgText'] ?></td>
@@ -125,10 +156,99 @@ $resImg = mysqli_query($connect, $loveImg);
 
 
 <script>
+    // 1. 手动初始化 DataTable，避免 demo.datatable-init.js 导致的重复初始化
+    $(document).ready(function() {
+        if ($.fn.DataTable.isDataTable('#basic-datatable')) {
+            $('#basic-datatable').DataTable().destroy();
+        }
+
+        $('#basic-datatable').DataTable({
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Chinese.json"
+            },
+            "responsive": true,
+            "columnDefs": [
+                { "orderable": false, "targets": 0 } // 第一列(勾选框)不参与排序
+            ]
+        });
+    });
+
     function del(id, imgText) {
         if (confirm('您确认要删除描述为 ' + imgText + ' 的相册图片吗')) {
-            location.href = 'delImg.php?id=' + id + '&imgText' + imgText;
+            location.href = 'delImg.php?id=' + id + '&imgText=' + encodeURIComponent(imgText);
         }
+    }
+
+    // 全选逻辑
+    $('#selectAll').on('click', function() {
+        const isChecked = $(this).prop('checked');
+        $('.photo-checkbox').prop('checked', isChecked);
+        updateBatchPanel();
+    });
+
+    function updateBatchPanel() {
+        const selected = $('.photo-checkbox:checked').length;
+        $('#selectedCount').text(selected);
+        if (selected > 0) {
+            $('#batchActionPanel').css('display', 'flex').fadeIn();
+        } else {
+            $('#batchActionPanel').fadeOut();
+        }
+    }
+
+    function getSelectedIds() {
+        const ids = [];
+        $('.photo-checkbox:checked').each(function() {
+            ids.push($(this).val());
+        });
+        return ids;
+    }
+
+    function batchDelete() {
+        const ids = getSelectedIds();
+        if (ids.length === 0) return alert('请先选择照片');
+        if (!confirm('确定要批量删除 ' + ids.length + ' 张照片吗？此操作不可撤销！')) return;
+
+        const $btn = $(this);
+        $btn.prop('disabled', true).text('处理中...');
+
+        // 使用相对路径调用接口
+                $.post('deletePhotos.php', { ids: ids }, function(res) {
+            if (res.code === 200) {
+            alert(res.message);
+            location.reload();
+            } else {
+                alert('删除失败: ' + res.message);
+                $btn.prop('disabled', false).text('批量删除');
+    }
+        }, 'json').fail(function() {
+            alert('网络请求失败，请检查接口路径');
+            $btn.prop('disabled', false).text('批量删除');
+        });
+    }
+
+    function batchTransfer() {
+        const ids = getSelectedIds();
+        const albumId = $('#targetAlbum').val();
+
+        if (ids.length === 0) return alert('请先选择照片');
+        if (!albumId) return alert('请选择目标相册');
+        if (!confirm('确定将选中的 ' + ids.length + ' 张照片转移到指定相册吗？')) return;
+
+        const $btn = $(this);
+        $btn.prop('disabled', true).text('处理中...');
+        $.post('../transferPhotos.php', { ids: ids, album_id: albumId }, function(res) {
+            if (res.code === 200) {
+            alert(res.message);
+            location.reload();
+            } else {
+                alert('转移失败: ' + res.message);
+                $btn.prop('disabled', false).text('转移');
+    }
+        }, 'json').fail(function() {
+            alert('网络请求失败，请检查接口路径');
+            $btn.prop('disabled', false).text('转移');
+        });
     }
 
 </script>
@@ -147,8 +267,9 @@ include_once 'Footer.php';
 <script src="assets/js/vendor/buttons.print.min.js"></script>
 <script src="assets/js/vendor/dataTables.keyTable.min.js"></script>
 <script src="assets/js/vendor/dataTables.select.min.js"></script>
-<!-- demo app -->
-<script src="assets/js/pages/demo.datatable-init.js"></script>
+<!-- 移除导致报错的 demo 初始化脚本 -->
+<!-- <script src="assets/js/pages/demo.datatable-init.js"></script> -->
 <!-- end demo js-->
 </body>
 </html>
+

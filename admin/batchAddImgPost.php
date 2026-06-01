@@ -76,10 +76,10 @@ foreach ($images as $index => $img) {
 
     $realIndex++;
 
-    // 部分填写 → 报错
-    if (empty($imgUrl) || empty($imgText)) {
+    // 部分填写 报错
+    if (empty($imgUrl)) {
         $failCount++;
-        $errors[] = "第 " . $realIndex . " 张图片：URL或描述不完整";
+        $errors[] = "第 " . $realIndex . " 张图片：URL不能为空";
         continue;
     }
 
