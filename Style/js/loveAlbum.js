@@ -8,13 +8,17 @@ const limit = 9;
 let total = 0;
 let isLoading = false;
 
-// 选择模式状态管理
+// 检测是否为管理员页面（只有管理员页面才启用选择功能）
+const isAdminPage = window.location.pathname.includes('/admin/');
+console.log('[LoveAlbum] 当前页面类型:', isAdminPage ? '管理员后台' : '前台浏览');
+
+// 选择模式状态管理（仅管理员页面使用）
 let selectionMode = false;
 let selectedPhotos = new Set(); // 使用 Set 存储选中的照片ID，跨页保持
 let photoDataMap = new Map(); // 存储照片数据，用于下载和收藏
 let lastCheckedIndex = null; // 用于 Shift+点击范围选择
 
-// 拖动框选状态
+// 拖动框选状态（仅管理员页面使用）
 let isDragging = false;
 let dragStartX = 0;
 let dragStartY = 0;
@@ -95,7 +99,11 @@ function openAlbum(albumId, albumName) {
     $('#breadcrumb').show();
     $('#currentAlbumName').show().text(' > ' + albumName);
     $('#loadMoreBtn').show();
-    $('#selectionModeBtn').show(); // 显示选择模式按钮
+
+    // 只在管理员页面显示选择模式按钮
+    if (isAdminPage) {
+        $('#selectionModeBtn').show();
+    }
 
     loadPhotos();
 }
@@ -268,19 +276,22 @@ function exitSelectionMode() {
     selectionMode = false;
     selectedPhotos.clear();
 
-    // 隐藏所有照片的复选框
-    $('.photo-checkbox-overlay').hide();
-    $('.photo-selection-checkbox').prop('checked', false);
-    $('.photo-item').removeClass('selected');
+    // 只在管理员页面操作选择相关的UI元素
+    if (isAdminPage) {
+        // 隐藏所有照片的复选框
+        $('.photo-checkbox-overlay').hide();
+        $('.photo-selection-checkbox').prop('checked', false);
+        $('.photo-item').removeClass('selected');
 
-    // 隐藏浮动操作栏
-    $('#floatingActionBar').removeClass('show');
+        // 隐藏浮动操作栏
+        $('#floatingActionBar').removeClass('show');
 
-    // 恢复选择模式按钮
-    $('#selectionModeBtn').html(`
-        <svg viewBox="0 0 1024 1024" width="20" height="20"><path d="M866.9 169.9L527.1 54.1C523 52.7 517.5 52 512 52s-11 .7-15.1 2.1L157.1 169.9c-8.3 2.8-15.1 12.4-15.1 21.2v482.4c0 8.8 5.7 20.4 12.6 25.9L499.3 968c3.5 2.7 8 4.1 12.6 4.1s9.2-1.4 12.6-4.1l344.7-268.6c6.9-5.4 12.6-17 12.6-25.9V191.1c.2-8.8-6.6-18.3-14.9-21.2zM810 654.3L512 886.5 214 654.3V226.7l298-101.6 298 101.6v427.6z"/><path d="M402.9 528.8l-77.5-77.5c-6.2-6.2-16.4-6.2-22.6 0l-22.6 22.6c-6.2 6.2-6.2 16.4 0 22.6l112.7 112.7c6.2 6.2 16.4 6.2 22.6 0l226.9-226.9c6.2-6.2 6.2-16.4 0-22.6L619.8 337c-6.2-6.2-16.4-6.2-22.6 0L402.9 528.8z"/></svg>
-        选择
-    `).removeClass('active');
+        // 恢复选择模式按钮
+        $('#selectionModeBtn').html(`
+            <svg viewBox="0 0 1024 1024" width="20" height="20"><path d="M866.9 169.9L527.1 54.1C523 52.7 517.5 52 512 52s-11 .7-15.1 2.1L157.1 169.9c-8.3 2.8-15.1 12.4-15.1 21.2v482.4c0 8.8 5.7 20.4 12.6 25.9L499.3 968c3.5 2.7 8 4.1 12.6 4.1s9.2-1.4 12.6-4.1l344.7-268.6c6.9-5.4 12.6-17 12.6-25.9V191.1c.2-8.8-6.6-18.3-14.9-21.2zM810 654.3L512 886.5 214 654.3V226.7l298-101.6 298 101.6v427.6z"/><path d="M402.9 528.8l-77.5-77.5c-6.2-6.2-16.4-6.2-22.6 0l-22.6 22.6c-6.2 6.2-6.2 16.4 0 22.6l112.7 112.7c6.2 6.2 16.4 6.2 22.6 0l226.9-226.9c6.2-6.2 6.2-16.4 0-22.6L619.8 337c-6.2-6.2-16.4-6.2-22.6 0L402.9 528.8z"/></svg>
+            选择
+        `).removeClass('active');
+    }
 }
 
 // 切换选择模式
@@ -716,55 +727,62 @@ function initLoveAlbum() {
     $('#loadMoreBtn').off('click').on('click', loadPhotos);
     $('#breadcrumb').off('click').on('click', showAlbums);
 
-    // 绑定选择模式按钮
-    $('#selectionModeBtn').off('click').on('click', toggleSelectionMode);
+    // 只在管理员页面绑定选择功能
+    if (isAdminPage) {
+        console.log('[LoveAlbum] 管理员页面 - 启用选择功能');
 
-    // 绑定浮动操作栏按钮
-    $('#downloadSelectedBtn').off('click').on('click', downloadSelectedPhotos);
-    $('#favoriteSelectedBtn').off('click').on('click', favoriteSelectedPhotos);
-    $('#cancelSelectionBtn').off('click').on('click', exitSelectionMode);
+        // 绑定选择模式按钮
+        $('#selectionModeBtn').off('click').on('click', toggleSelectionMode);
 
-    // 绑定快捷选择按钮
-    $('#selectAllBtn').off('click').on('click', selectAllPhotos);
-    $('#invertSelectionBtn').off('click').on('click', invertSelection);
-    $('#clearSelectionBtn').off('click').on('click', clearSelection);
+        // 绑定浮动操作栏按钮
+        $('#downloadSelectedBtn').off('click').on('click', downloadSelectedPhotos);
+        $('#favoriteSelectedBtn').off('click').on('click', favoriteSelectedPhotos);
+        $('#cancelSelectionBtn').off('click').on('click', exitSelectionMode);
 
-    // 键盘快捷键支持
-    $(document).off('keydown.photoSelection');
-    $(document).on('keydown.photoSelection', function(e) {
-        if (!selectionMode) return;
+        // 绑定快捷选择按钮
+        $('#selectAllBtn').off('click').on('click', selectAllPhotos);
+        $('#invertSelectionBtn').off('click').on('click', invertSelection);
+        $('#clearSelectionBtn').off('click').on('click', clearSelection);
 
-        // Ctrl/Cmd + A: 全选
-        if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
-            e.preventDefault();
-            selectAllPhotos();
-        }
-        // Escape: 退出选择模式
-        else if (e.key === 'Escape') {
-            e.preventDefault();
-            exitSelectionMode();
-        }
-        // Ctrl/Cmd + I: 反选
-        else if ((e.ctrlKey || e.metaKey) && e.key === 'i') {
-            e.preventDefault();
-            invertSelection();
-        }
-    });
+        // 键盘快捷键支持
+        $(document).off('keydown.photoSelection');
+        $(document).on('keydown.photoSelection', function(e) {
+            if (!selectionMode) return;
 
-    // 拖动框选事件绑定
-    $(document).off('mousedown.dragSelect');
-    $(document).off('mousemove.dragSelect');
-    $(document).off('mouseup.dragSelect');
+            // Ctrl/Cmd + A: 全选
+            if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+                e.preventDefault();
+                selectAllPhotos();
+            }
+            // Escape: 退出选择模式
+            else if (e.key === 'Escape') {
+                e.preventDefault();
+                exitSelectionMode();
+            }
+            // Ctrl/Cmd + I: 反选
+            else if ((e.ctrlKey || e.metaKey) && e.key === 'i') {
+                e.preventDefault();
+                invertSelection();
+            }
+        });
 
-    $(document).on('mousedown.dragSelect', function(e) {
-        startDragSelection(e);
-    });
+        // 拖动框选事件绑定
+        $(document).off('mousedown.dragSelect');
+        $(document).off('mousemove.dragSelect');
+        $(document).off('mouseup.dragSelect');
 
-    $(document).on('mousemove.dragSelect', function(e) {
-        onDragSelection(e);
-    });
+        $(document).on('mousedown.dragSelect', function(e) {
+            startDragSelection(e);
+        });
 
-    $(document).on('mouseup.dragSelect', function(e) {
-        endDragSelection(e);
-    });
+        $(document).on('mousemove.dragSelect', function(e) {
+            onDragSelection(e);
+        });
+
+        $(document).on('mouseup.dragSelect', function(e) {
+            endDragSelection(e);
+        });
+    } else {
+        console.log('[LoveAlbum] 前台页面 - 选择功能已禁用');
+    }
 }
