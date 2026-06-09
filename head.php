@@ -168,7 +168,6 @@ $Animation = $text['Animation'];
 <link rel="stylesheet" href="../Style/toastr/toastr.css?LikeGirl=<?php echo $version ?>">
 <link rel="stylesheet" href="../Style/css/loadinglike.css?LikeGirl=<?php echo $version ?>">
 <script src="../Style/Font/font_leav/iconfont.js"></script>
-<script src="../Style/Font/font_leav/iconfont.js"></script>
 <script src="../Botui/botui.min.js"></script>
 <script src="../Style/js/vue.min.js"></script>
 <script src="../Style/jquery/jquery.min.js"></script>

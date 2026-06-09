@@ -13,8 +13,8 @@ $jiequ = $Setinfo['jiequ'];
 
 $liuyan = "SELECT * FROM leaving order by id desc limit ?";
 $stmt = $conn->prepare($liuyan);
-$stmt->bind_param("i", $jiequ);
 $jiequ = $Setinfo['jiequ'];
+$stmt->bind_param("i", $jiequ);
 $stmt->bind_result($id, $name, $qq, $text, $time, $ip, $city);
 $result = $stmt->execute();
 if (!$result)
@@ -131,7 +131,11 @@ include_once 'head.php';
                     },
                     error: function (xhr, status, error) {
                         removeLoading('test');
-                        toastr["error"]("Request failed: " + error, "Like_Girl");
+                        if (status === 'timeout') {
+                            toastr["error"]("请求超时，请检查网络连接！", "Like_Girl");
+                        } else {
+                            toastr["error"]("Request failed: " + error, "Like_Girl");
+                        }
                     }
                 });
             });

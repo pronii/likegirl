@@ -56,12 +56,12 @@ while ($row = mysqli_fetch_array($albumRes)) {
     function check() {
         let title = document.getElementsByName('imgText')[0].value.trim();
         if (title.length == 0) {
-            alert("图片描述不能为空");
+            Swal.fire({icon:'warning',title:'图片描述不能为空',confirmButtonText:'好的'});
             return false;
         }
         let imgUrl = document.getElementsByName('imgUrl')[0].value.trim();
         if (imgUrl.length == 0) {
-            alert("图片URL不能为空");
+            Swal.fire({icon:'warning',title:'图片URL不能为空',confirmButtonText:'好的'});
             return false;
         }
         return true;

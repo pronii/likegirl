@@ -1,0 +1,510 @@
+/**
+ * Selection Enhancements CSS
+ * Visual styling for batch selection features including hover states,
+ * selected rows, floating counter badge, floating action bar, checkbox
+ * animations, and quick action buttons.
+ */
+
+/* ============================================
+   Checkbox Styling and Animations
+   ============================================ */
+
+/* Custom checkbox container */
+.batch-checkbox-container {
+    position: relative;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+/* Hide default checkbox */
+.batch-checkbox {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+}
+
+/* Custom checkbox visual */
+.batch-checkbox-custom {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+}
+
+/* Checkbox hover state */
+.batch-checkbox-container:hover .batch-checkbox-custom {
+    border-color: #5cb85c;
+    box-shadow: 0 0 0 3px rgba(92, 184, 92, 0.1);
+}
+
+/* Checked state */
+.batch-checkbox:checked + .batch-checkbox-custom {
+    background-color: #5cb85c;
+    border-color: #5cb85c;
+}
+
+/* Checkmark icon */
+.batch-checkbox:checked + .batch-checkbox-custom::after {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    animation: checkmark-pop 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Checkmark animation */
+@keyframes checkmark-pop {
+    0% {
+        transform: rotate(45deg) scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: rotate(45deg) scale(1.2);
+    }
+    100% {
+        transform: rotate(45deg) scale(1);
+        opacity: 1;
+    }
+}
+
+/* ============================================
+   Table Row Hover and Selection States
+   ============================================ */
+
+/* Row hover effect */
+.photo-item-row,
+.album-item-row {
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+}
+
+.photo-item-row:hover,
+.album-item-row:hover {
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Selected row styling */
+.photo-item-row.selected,
+.album-item-row.selected {
+    background-color: #e8f5e9 !important;
+    box-shadow: 0 2px 6px rgba(92, 184, 92, 0.15);
+    position: relative;
+}
+
+/* Selected row border accent */
+.photo-item-row.selected::before,
+.album-item-row.selected::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background-color: #5cb85c;
+    animation: slide-in-left 0.3s ease;
+}
+
+@keyframes slide-in-left {
+    from {
+        width: 0;
+        opacity: 0;
+    }
+    to {
+        width: 4px;
+        opacity: 1;
+    }
+}
+
+/* ============================================
+   Floating Selection Counter Badge
+   ============================================ */
+
+.selection-counter-badge {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #5cb85c 0%, #4cae4c 100%);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 14px;
+    box-shadow: 0 4px 12px rgba(92, 184, 92, 0.4);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    gap: 8px;
+    animation: badge-slide-in 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.selection-counter-badge.visible {
+    display: flex;
+}
+
+.selection-counter-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(92, 184, 92, 0.5);
+}
+
+.selection-counter-badge .count {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+@keyframes badge-slide-in {
+    from {
+        transform: translateX(100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* ============================================
+   Floating Action Bar
+   ============================================ */
+
+.floating-action-bar {
+    position: fixed;
+    bottom: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    padding: 16px 24px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    z-index: 1001;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    min-width: 400px;
+}
+
+.floating-action-bar.visible {
+    bottom: 30px;
+}
+
+.floating-action-bar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #5cb85c 0%, #4cae4c 100%);
+    border-radius: 12px 12px 0 0;
+}
+
+/* Action bar content */
+.floating-action-bar-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+}
+
+.floating-action-bar-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #333;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.floating-action-bar-info .count {
+    color: #5cb85c;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.floating-action-bar-actions {
+    display: flex;
+    gap: 10px;
+    margin-left: auto;
+}
+
+/* ============================================
+   Quick Action Buttons
+   ============================================ */
+
+.quick-action-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.quick-action-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.quick-action-btn:active {
+    transform: translateY(0);
+}
+
+/* Transfer button */
+.quick-action-btn.btn-transfer {
+    background-color: #5cb85c;
+    color: white;
+}
+
+.quick-action-btn.btn-transfer:hover {
+    background-color: #4cae4c;
+}
+
+/* Delete button */
+.quick-action-btn.btn-delete {
+    background-color: #d9534f;
+    color: white;
+}
+
+.quick-action-btn.btn-delete:hover {
+    background-color: #c9302c;
+}
+
+/* Cancel button */
+.quick-action-btn.btn-cancel {
+    background-color: #f5f5f5;
+    color: #666;
+    border: 1px solid #ddd;
+}
+
+.quick-action-btn.btn-cancel:hover {
+    background-color: #e9e9e9;
+    border-color: #ccc;
+}
+
+/* Select All button */
+.quick-action-btn.btn-select-all {
+    background-color: #5bc0de;
+    color: white;
+}
+
+.quick-action-btn.btn-select-all:hover {
+    background-color: #46b8da;
+}
+
+/* Button icons */
+.quick-action-btn i {
+    font-size: 14px;
+}
+
+/* ============================================
+   Batch Operation Mode Toggle
+   ============================================ */
+
+.batch-mode-toggle {
+    margin-bottom: 15px;
+    padding: 12px 16px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.batch-mode-toggle.active {
+    background-color: #e8f5e9;
+    border-color: #5cb85c;
+}
+
+.batch-mode-toggle label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    color: #495057;
+    margin: 0;
+}
+
+.batch-mode-toggle.active label {
+    color: #2e7d32;
+}
+
+/* ============================================
+   Loading and Disabled States
+   ============================================ */
+
+.quick-action-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.quick-action-btn.loading {
+    position: relative;
+    color: transparent;
+}
+
+.quick-action-btn.loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: button-spinner 0.6s linear infinite;
+}
+
+@keyframes button-spinner {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+
+@media (max-width: 768px) {
+    .selection-counter-badge {
+        top: 10px;
+        right: 10px;
+        padding: 10px 16px;
+        font-size: 12px;
+    }
+
+    .floating-action-bar {
+        min-width: auto;
+        width: calc(100% - 40px);
+        padding: 12px 16px;
+        bottom: -100px;
+    }
+
+    .floating-action-bar.visible {
+        bottom: 20px;
+    }
+
+    .floating-action-bar-content {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .floating-action-bar-actions {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .quick-action-btn {
+        flex: 1;
+        justify-content: center;
+        font-size: 12px;
+        padding: 8px 12px;
+    }
+
+    .batch-mode-toggle {
+        padding: 10px 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .selection-counter-badge .count {
+        font-size: 16px;
+    }
+
+    .floating-action-bar-actions {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .quick-action-btn {
+        width: 100%;
+    }
+}
+
+/* ============================================
+   Accessibility Enhancements
+   ============================================ */
+
+/* Focus visible states for keyboard navigation */
+.batch-checkbox:focus-visible + .batch-checkbox-custom {
+    outline: 2px solid #5cb85c;
+    outline-offset: 2px;
+}
+
+.quick-action-btn:focus-visible {
+    outline: 2px solid #5cb85c;
+    outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .batch-checkbox-custom {
+        border-width: 3px;
+    }
+
+    .photo-item-row.selected,
+    .album-item-row.selected {
+        border: 2px solid #5cb85c;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .batch-checkbox-custom,
+    .photo-item-row,
+    .album-item-row,
+    .selection-counter-badge,
+    .floating-action-bar,
+    .quick-action-btn {
+        transition: none;
+        animation: none;
+    }
+}
+
+/* ============================================
+   Print Styles
+   ============================================ */
+
+@media print {
+    .selection-counter-badge,
+    .floating-action-bar,
+    .batch-mode-toggle,
+    .batch-checkbox-container {
+        display: none !important;
+    }
+
+    .photo-item-row.selected,
+    .album-item-row.selected {
+        background-color: transparent !important;
+        box-shadow: none !important;
+    }
+}

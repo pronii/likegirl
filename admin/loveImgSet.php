@@ -2,17 +2,17 @@
 session_start();
 include_once 'Nav.php';
 // 关联查询获取相册名称
-$loveImg = "SELECT li.*, la.album_name FROM loveImg li 
-            LEFT JOIN love_album la ON li.album_id = la.id 
+$loveImg = "SELECT li.*, la.album_name FROM loveImg li
+            LEFT JOIN love_album la ON li.album_id = la.id
             ORDER BY li.id desc";
 $resImg = mysqli_query($connect, $loveImg);
 ?>
-
 
 <link href="assets/css/vendor/dataTables.bootstrap4.css" rel="stylesheet" type="text/css"/>
 <link href="assets/css/vendor/responsive.bootstrap4.css" rel="stylesheet" type="text/css"/>
 <link href="assets/css/vendor/buttons.bootstrap4.css" rel="stylesheet" type="text/css"/>
 <link href="assets/css/vendor/select.bootstrap4.css" rel="stylesheet" type="text/css"/>
+<link href="assets/css/selection-manager.css" rel="stylesheet" type="text/css"/>
 
 <style>
     .img-thumbnail {
@@ -41,15 +41,19 @@ $resImg = mysqli_query($connect, $loveImg);
         background: #e9ecef;
         color: #6c757d;
     }
-    .batch-action-card {
-        background: #f8f9fa;
-        border: 1px solid #ddd;
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-        display: none;
+    .row-selected {
+        background-color: #e3f2fd !important;
+    }
+    .row-selected td {
+        background-color: #e3f2fd !important;
     }
 </style>
+
+<!-- Floating selection counter -->
+<div id="floatingCounter" class="floating-counter">
+    <i class="mdi mdi-checkbox-marked-circle-outline"></i>
+    <span id="floatingCount">0</span> 张已选
+</div>
 
 <div class="row">
     <div class="col-12">
@@ -67,12 +71,16 @@ $resImg = mysqli_query($connect, $loveImg);
                         </button>
                     </a>
                 </h4>
-                <!-- 批量操作面板 -->
-                <div id="batchActionPanel" class="batch-action-card">
-                    <div class="d-flex align-items-center">
-                        <span class="mr-3 font-weight-bold">已选 <span id="selectedCount">0</span> 张</span>
-                        <div class="form-group mb-0 mr-3">
-                            <select id="targetAlbum" class="form-control form-control-sm">
+
+                <!-- Floating batch action bar -->
+                <div id="batchActionPanel" class="floating-batch-bar">
+                    <div class="batch-bar-content">
+                        <div class="batch-info">
+                            <i class="mdi mdi-checkbox-multiple-marked"></i>
+                            <span>已选 <strong id="selectedCount">0</strong> 张</span>
+                        </div>
+                        <div class="batch-actions">
+                            <select id="targetAlbum" class="form-control form-control-sm batch-select">
                                 <option value="">-- 选择目标相册 --</option>
                                 <?php
                                 $albumRes = mysqli_query($connect, "SELECT id, album_name FROM love_album ORDER BY sort_order ASC");
@@ -81,9 +89,16 @@ $resImg = mysqli_query($connect, $loveImg);
                                 }
                                 ?>
                             </select>
+                            <button type="button" class="btn btn-primary btn-sm" data-action="transfer">
+                                <i class="mdi mdi-folder-move"></i> 转移相册
+                            </button>
+                            <button type="button" class="btn btn-danger btn-sm" data-action="delete">
+                                <i class="mdi mdi-delete-multiple"></i> 批量删除
+                            </button>
+                            <button type="button" class="btn btn-light btn-sm batch-close" data-action="cancel">
+                                <i class="mdi mdi-close"></i>
+                            </button>
                         </div>
-                        <button type="button" class="btn btn-primary btn-sm mr-2" onclick="batchTransfer()">转移相册</button>
-                        <button type="button" class="btn btn-danger btn-sm" onclick="batchDelete()">批量删除</button>
                     </div>
                 </div>
 
@@ -105,13 +120,12 @@ $resImg = mysqli_query($connect, $loveImg);
                     $SerialNumber = 0;
                     while ($list = mysqli_fetch_array($resImg)) {
                         $SerialNumber++;
-                        // 处理相册显示
                         $albumName = $list['album_name'] ? $list['album_name'] : '未分类';
                         $albumClass = $list['album_name'] ? 'album-badge' : 'album-badge album-none';
                         ?>
-                        <tr id="row-<?php echo $list['id']; ?>">
+                        <tr id="row-<?php echo $list['id']; ?>" data-photo-id="<?php echo $list['id']; ?>">
                             <td>
-                                <input type="checkbox" class="photo-checkbox" value="<?php echo $list['id']; ?>" onchange="updateBatchPanel()">
+                                <input type="checkbox" class="photo-checkbox" value="<?php echo $list['id']; ?>" data-checkbox="photo">
                             </td>
                             <td>
                                 <div class="SerialNumber">
@@ -134,128 +148,31 @@ $resImg = mysqli_query($connect, $loveImg);
                             <td>
                                 <a href="modImg.php?id=<?php echo $list['id'] ?>">
                                     <button type="button" class="btn btn-secondary btn-rounded">
-                                        <i class=" mdi mdi-clipboard-text-play-outline mr-1"></i>修改
+                                        <i class="mdi mdi-clipboard-text-play-outline mr-1"></i>修改
                                     </button>
                                 </a>
-                                <a href="javascript:del(<?php echo $list['id']; ?>,'<?php echo $list['imgText']; ?>');">
-                                    <button type="button" class="btn btn-danger btn-rounded">
-                                        <i class=" mdi mdi-delete-empty mr-1"></i>删除
-                                    </button>
-                                </a></td>
+                                <button type="button" class="btn btn-danger btn-rounded" onclick="del(<?php echo $list['id']; ?>,'<?php echo $list['imgText']; ?>')">
+                                    <i class="mdi mdi-delete-empty mr-1"></i>删除
+                                </button>
+                            </td>
                         </tr>
-                    <?php
-                    }
-                    ?>
+                    <?php } ?>
                     </tbody>
                 </table>
 
-            </div> <!-- end card body-->
-        </div> <!-- end card -->
-    </div><!-- end col-->
+                <!-- Select All Pages button -->
+                <div class="mt-3">
+                    <button type="button" id="selectAllPages" class="btn btn-outline-primary btn-sm" style="display:none;">
+                        <i class="mdi mdi-checkbox-multiple-marked-outline"></i> 全选所有页（跨页选择）
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
 </div>
 
-
-<script>
-    // 1. 手动初始化 DataTable，避免 demo.datatable-init.js 导致的重复初始化
-    $(document).ready(function() {
-        if ($.fn.DataTable.isDataTable('#basic-datatable')) {
-            $('#basic-datatable').DataTable().destroy();
-        }
-
-        $('#basic-datatable').DataTable({
-            "language": {
-                "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Chinese.json"
-            },
-            "responsive": true,
-            "columnDefs": [
-                { "orderable": false, "targets": 0 } // 第一列(勾选框)不参与排序
-            ]
-        });
-    });
-
-    function del(id, imgText) {
-        if (confirm('您确认要删除描述为 ' + imgText + ' 的相册图片吗')) {
-            location.href = 'delImg.php?id=' + id + '&imgText=' + encodeURIComponent(imgText);
-        }
-    }
-
-    // 全选逻辑
-    $('#selectAll').on('click', function() {
-        const isChecked = $(this).prop('checked');
-        $('.photo-checkbox').prop('checked', isChecked);
-        updateBatchPanel();
-    });
-
-    function updateBatchPanel() {
-        const selected = $('.photo-checkbox:checked').length;
-        $('#selectedCount').text(selected);
-        if (selected > 0) {
-            $('#batchActionPanel').css('display', 'flex').fadeIn();
-        } else {
-            $('#batchActionPanel').fadeOut();
-        }
-    }
-
-    function getSelectedIds() {
-        const ids = [];
-        $('.photo-checkbox:checked').each(function() {
-            ids.push($(this).val());
-        });
-        return ids;
-    }
-
-    function batchDelete() {
-        const ids = getSelectedIds();
-        if (ids.length === 0) return alert('请先选择照片');
-        if (!confirm('确定要批量删除 ' + ids.length + ' 张照片吗？此操作不可撤销！')) return;
-
-        const $btn = $(this);
-        $btn.prop('disabled', true).text('处理中...');
-
-        // 使用相对路径调用接口
-                $.post('deletePhotos.php', { ids: ids }, function(res) {
-            if (res.code === 200) {
-            alert(res.message);
-            location.reload();
-            } else {
-                alert('删除失败: ' + res.message);
-                $btn.prop('disabled', false).text('批量删除');
-    }
-        }, 'json').fail(function() {
-            alert('网络请求失败，请检查接口路径');
-            $btn.prop('disabled', false).text('批量删除');
-        });
-    }
-
-    function batchTransfer() {
-        const ids = getSelectedIds();
-        const albumId = $('#targetAlbum').val();
-
-        if (ids.length === 0) return alert('请先选择照片');
-        if (!albumId) return alert('请选择目标相册');
-        if (!confirm('确定将选中的 ' + ids.length + ' 张照片转移到指定相册吗？')) return;
-
-        const $btn = $(this);
-        $btn.prop('disabled', true).text('处理中...');
-        $.post('../transferPhotos.php', { ids: ids, album_id: albumId }, function(res) {
-            if (res.code === 200) {
-            alert(res.message);
-            location.reload();
-            } else {
-                alert('转移失败: ' + res.message);
-                $btn.prop('disabled', false).text('转移');
-    }
-        }, 'json').fail(function() {
-            alert('网络请求失败，请检查接口路径');
-            $btn.prop('disabled', false).text('转移');
-        });
-    }
-
-</script>
-<?php
-include_once 'Footer.php';
-?>
-<!-- third party js -->
+<!-- 先加载所有依赖库 -->
 <script src="assets/js/vendor/jquery.dataTables.min.js"></script>
 <script src="assets/js/vendor/dataTables.bootstrap4.js"></script>
 <script src="assets/js/vendor/dataTables.responsive.min.js"></script>
@@ -267,9 +184,256 @@ include_once 'Footer.php';
 <script src="assets/js/vendor/buttons.print.min.js"></script>
 <script src="assets/js/vendor/dataTables.keyTable.min.js"></script>
 <script src="assets/js/vendor/dataTables.select.min.js"></script>
-<!-- 移除导致报错的 demo 初始化脚本 -->
-<!-- <script src="assets/js/pages/demo.datatable-init.js"></script> -->
-<!-- end demo js-->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+// 删除函数 —— 全局可访问，彻底解决 del is not defined
+function del(id, imgText) {
+    Swal.fire({
+        title: '确认删除',
+        html: `您确认要删除描述为 <strong>${imgText}</strong> 的相册图片吗？`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: '是的，删除',
+        cancelButtonText: '取消'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: 'delImg.php',
+                type: 'GET',
+                data: { id: id, imgText: imgText },
+                success: function(response) {
+                    // Use DataTable API to remove row instead of location.reload()
+                    const table = $('#basic-datatable').DataTable();
+                    const row = table.row('#row-' + id);
+                    row.remove().draw(false);
+
+                    Swal.fire('已删除', '照片已成功删除', 'success');
+                },
+                error: function() {
+                    Swal.fire('错误', '删除失败，请重试', 'error');
+                }
+            });
+        }
+    });
+}
+
+let dataTableInstance;
+
+$(document).ready(function() {
+    if ($.fn.DataTable.isDataTable('#basic-datatable')) {
+        $('#basic-datatable').DataTable().destroy();
+    }
+
+    dataTableInstance = $('#basic-datatable').DataTable({
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Chinese.json"
+        },
+        "responsive": true,
+        "columnDefs": [{ "orderable": false, "targets": 0 }],
+        "drawCallback": function() {
+            // Re-apply visual selection after redraw
+            $('.photo-checkbox:checked').each(function() {
+                $(this).closest('tr').addClass('row-selected');
+            });
+        }
+    });
+
+    // Show "Select All Pages" button when current page is fully selected
+    dataTableInstance.on('draw', function() {
+        updateSelectAllPagesButton();
+    });
+});
+
+// 全选当前页
+$('#selectAll').on('click', function() {
+    const isChecked = $(this).prop('checked');
+    $('.photo-checkbox:visible').each(function() {
+        $(this).prop('checked', isChecked);
+        toggleRowSelection($(this));
+    });
+    updateBatchPanel();
+    updateSelectAllPagesButton();
+});
+
+// Individual checkbox change handler with visual feedback
+$(document).on('change', '.photo-checkbox', function() {
+    toggleRowSelection($(this));
+    updateBatchPanel();
+    updateSelectAllPagesButton();
+});
+
+function toggleRowSelection(checkbox) {
+    const row = checkbox.closest('tr');
+    if (checkbox.prop('checked')) {
+        row.addClass('row-selected');
+    } else {
+        row.removeClass('row-selected');
+        $('#selectAll').prop('checked', false);
+    }
+}
+
+function updateBatchPanel() {
+    const selected = $('.photo-checkbox:checked').length;
+    $('#selectedCount').text(selected);
+    $('#floatingCount').text(selected);
+
+    if (selected > 0) {
+        $('#batchActionPanel').addClass('show');
+        $('#floatingCounter').addClass('show');
+    } else {
+        $('#batchActionPanel').removeClass('show');
+        $('#floatingCounter').removeClass('show');
+    }
+}
+
+function updateSelectAllPagesButton() {
+    const visibleCheckboxes = $('.photo-checkbox:visible').length;
+    const checkedVisible = $('.photo-checkbox:visible:checked').length;
+
+    if (checkedVisible === visibleCheckboxes && visibleCheckboxes > 0) {
+        $('#selectAllPages').fadeIn();
+    } else {
+        $('#selectAllPages').fadeOut();
+    }
+}
+
+// Select all across all pages
+$('#selectAllPages').on('click', function() {
+    $('.photo-checkbox').prop('checked', true);
+    $('.photo-checkbox').each(function() {
+        $(this).closest('tr').addClass('row-selected');
+    });
+    $('#selectAll').prop('checked', true);
+    updateBatchPanel();
+    $(this).fadeOut();
+
+    Swal.fire({
+        icon: 'success',
+        title: '已全选',
+        text: `已选中全部 ${$('.photo-checkbox').length} 张照片（跨所有页）`,
+        timer: 2000,
+        showConfirmButton: false
+    });
+});
+
+function getSelectedIds() {
+    const ids = [];
+    $('.photo-checkbox:checked').each(function() {
+        ids.push($(this).val());
+    });
+    return ids;
+}
+
+// Batch action handlers using data attributes
+$(document).on('click', '[data-action="delete"]', function() {
+    batchDelete();
+});
+
+$(document).on('click', '[data-action="transfer"]', function() {
+    batchTransfer();
+});
+
+$(document).on('click', '[data-action="cancel"]', function() {
+    $('.photo-checkbox').prop('checked', false);
+    $('.photo-checkbox').each(function() {
+        $(this).closest('tr').removeClass('row-selected');
+    });
+    $('#selectAll').prop('checked', false);
+    updateBatchPanel();
+});
+
+// 批量删除（使用DataTable API更新）
+function batchDelete() {
+    const ids = getSelectedIds();
+    if (ids.length === 0) return Swal.fire('提示', '请先选择照片', 'info');
+
+    Swal.fire({
+        title: '确认批量删除',
+        html: `确定要批量删除 <strong>${ids.length}</strong> 张照片吗？此操作不可撤销！`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: '是的，删除',
+        cancelButtonText: '取消'
+    }).then((result) => {
+        if (!result.isConfirmed) return;
+
+        $.post('deletePhotos.php', { ids: ids }, function(res) {
+            if (res.code === 200) {
+                // Use DataTable API to remove rows instead of location.reload()
+                const table = $('#basic-datatable').DataTable();
+                ids.forEach(function(id) {
+                    const row = table.row('#row-' + id);
+                    row.remove();
+                });
+                table.draw(false);
+
+                // Clear selections
+                $('.photo-checkbox').prop('checked', false);
+                $('#selectAll').prop('checked', false);
+                updateBatchPanel();
+
+                Swal.fire('成功', res.message, 'success');
+            } else {
+                Swal.fire('删除失败', res.message, 'error');
+            }
+        }, 'json').fail(function() {
+            Swal.fire('错误', '网络请求失败，请检查接口路径', 'error');
+        });
+    });
+}
+
+// 批量转移（使用DataTable API更新）
+function batchTransfer() {
+    const ids = getSelectedIds();
+    const albumId = $('#targetAlbum').val();
+
+    if (ids.length === 0) return Swal.fire('提示', '请先选择照片', 'info');
+    if (!albumId) return Swal.fire('提示', '请选择目标相册', 'info');
+
+    const albumName = $('#targetAlbum option:selected').text();
+
+    Swal.fire({
+        title: '确认转移',
+        html: `确定将选中的 <strong>${ids.length}</strong> 张照片转移到 <strong>${albumName}</strong> 吗？`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: '是的，转移',
+        cancelButtonText: '取消'
+    }).then((result) => {
+        if (!result.isConfirmed) return;
+
+        $.post('transferPhotos.php', { ids: ids, album_id: albumId }, function(res) {
+            if (res.code === 200) {
+                // Update DataTable cells instead of full reload
+                const table = $('#basic-datatable').DataTable();
+                ids.forEach(function(id) {
+                    const row = table.row('#row-' + id);
+                    const albumCell = $(row.node()).find('td:eq(4)');
+                    albumCell.html(`<span class="album-badge"><i class="mdi mdi-folder"></i> ${albumName}</span>`);
+                });
+
+                // Clear selections
+                $('.photo-checkbox').prop('checked', false);
+                $('#selectAll').prop('checked', false);
+                $('#targetAlbum').val('');
+                updateBatchPanel();
+
+                Swal.fire('成功', res.message, 'success');
+            } else {
+                Swal.fire('转移失败', res.message, 'error');
+            }
+        }, 'json').fail(function() {
+            Swal.fire('错误', '网络请求失败，请检查接口路径', 'error');
+        });
+    });
+}
+</script>
+
+<script src="assets/js/selection-manager.js"></script>
+
+<?php
+include_once 'Footer.php';
+?>
 </body>
 </html>
-

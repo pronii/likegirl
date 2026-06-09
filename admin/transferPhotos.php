@@ -2,7 +2,7 @@
 session_start();
 header('Content-Type: application/json; charset=utf-8');
 
-include_once 'admin/connect.php';
+include_once 'connect.php';
 
 // 检查登录状态
 if (!isset($_SESSION['loginadmin']) || $_SESSION['loginadmin'] == '') {
@@ -66,40 +66,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     mysqli_begin_transaction($connect);
 
     try {
-        // 先查询原始相册ID，用于支持撤销操作
-        $placeholders = implode(',', array_fill(0, count($validIds), '?'));
-        $selectSql = "SELECT id, album_id FROM loveImg WHERE id IN ($placeholders)";
-        $selectStmt = mysqli_prepare($connect, $selectSql);
-        if (!$selectStmt) {
-            throw new Exception('准备查询语句失败: ' . mysqli_error($connect));
-        }
-
-        // 绑定查询参数
-        $selectTypes = str_repeat('i', count($validIds));
-        $selectParams = [$selectStmt, $selectTypes];
-        foreach ($validIds as $key => $value) {
-            $selectParams[] = &$validIds[$key];
-        }
-        call_user_func_array('mysqli_stmt_bind_param', $selectParams);
-
-        mysqli_stmt_execute($selectStmt);
-        $selectResult = mysqli_stmt_get_result($selectStmt);
-
-        // 保存原始相册ID映射
-        $originalAlbums = [];
-        while ($row = mysqli_fetch_assoc($selectResult)) {
-            $originalAlbums[] = [
-                'photo_id' => $row['id'],
-                'original_album_id' => $row['album_id']
-            ];
-        }
-        mysqli_stmt_close($selectStmt);
-
-        if (empty($originalAlbums)) {
-            throw new Exception('未找到指定的照片记录');
-        }
-
         // 使用占位符防止 SQL 注入
+        $placeholders = implode(',', array_fill(0, count($validIds), '?'));
         $sql = "UPDATE loveImg SET album_id = ? WHERE id IN ($placeholders)";
         $stmt = mysqli_prepare($connect, $sql);
         if (!$stmt) {
@@ -130,8 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo json_encode([
             'code' => 200,
             'message' => "成功转移 {$affectedRows} 张照片",
-            'affected_count' => $affectedRows,
-            'original_albums' => $originalAlbums
+            'affected_count' => $affectedRows
         ]);
     } catch (Exception $e) {
         mysqli_rollback($connect);
@@ -144,4 +111,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     echo json_encode(['code' => 405, 'message' => '请求方法不支持']);
 }
 ?>
-

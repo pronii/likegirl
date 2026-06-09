@@ -1,19 +1,28 @@
 <?php
 include_once 'admin/Database.php';
 $time = gmdate("Y-m-d", time() + 8 * 3600);
-@$id = $_GET['id'];
-if (is_numeric($id) == $id) {
+$id = isset($_GET['id']) ? $_GET['id'] : null;
+if (isset($id) && is_numeric($id) && $id > 0) {
     $article = "SELECT * FROM article WHERE id=? limit 1";
     $stmt = $conn->prepare($article);
     $stmt->bind_param("i", $id);
-    $id = $_GET['id'];
-    $stmt->bind_result($id, $articletext, $articletime, $articletitle, $articlename);
+    $stmt->bind_result($article_id, $articletext, $articletime, $articletitle, $articlename);
     $result = $stmt->execute();
-    if (!$result)
-        echo "错误信息：" . $stmt->error;
+    if (!$result) {
+        echo "<script>Swal.fire({icon:'error',title:'查询失败！',confirmButtonText:'好的'}).then(() => {history.back();});</script>";
+        exit;
+    }
     $stmt->fetch();
+    $stmt->close();
+
+    // 检查文章是否存在
+    if (empty($articletitle)) {
+        echo "<script>Swal.fire({icon:'error',title:'文章不存在！',confirmButtonText:'好的'}).then(() => {history.back();});</script>";
+        exit;
+    }
 } else {
-    echo ("<script>alert('参数错误或页面不存在！');history.back();</script>");
+    echo "<script>Swal.fire({icon:'error',title:'参数错误或页面不存在！',confirmButtonText:'好的'}).then(() => {history.back();});</script>";
+    exit;
 }
 include_once 'head.php';
 ?>
