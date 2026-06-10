@@ -202,12 +202,7 @@ $albumRes = mysqli_query($connect, "SELECT id, album_name FROM love_album ORDER 
     </div>
 </div>
 
-<script src="assets/js/vendor/jquery.dataTables.min.js"></script>
-<script>
-if (typeof $.fn.DataTable === 'undefined') {
-    document.write('<script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"><\/script>');
-}
-</script>
+<script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
 <script src="assets/js/vendor/dataTables.bootstrap4.js"></script>
 <script src="assets/js/vendor/dataTables.responsive.min.js"></script>
 <script src="assets/js/vendor/responsive.bootstrap4.min.js"></script>
