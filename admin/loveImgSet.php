@@ -445,6 +445,7 @@ function batchTransfer() {
                         // 更新data属性
                         row.attr('data-album-id', albumId);
                         row.attr('data-album-name', finalAlbumName);
+                        console.log('更新行 #row-' + id + ': albumId=' + albumId + ', albumName=' + finalAlbumName);
                     });
                     clearSelection();
                     Swal.fire({
@@ -551,6 +552,7 @@ $(document).on('click', 'tbody tr', function(e) {
 $('#albumFilter').on('change', function() {
     const albumId = $(this).val();
     const rows = $('#photoTbody tr');
+    console.log('筛选触发 - 选择的albumId:', albumId);
 
     if (albumId === '') {
         rows.show();
@@ -558,6 +560,7 @@ $('#albumFilter').on('change', function() {
     } else {
         rows.each(function() {
             const rowAlbumId = $(this).data('album-id').toString();
+            console.log('行ID:', $(this).attr('id'), 'rowAlbumId:', rowAlbumId, '匹配:', (albumId === 'null' && rowAlbumId === '0') || rowAlbumId === albumId);
             if ((albumId === 'null' && rowAlbumId === '0') || rowAlbumId === albumId) {
                 $(this).show();
             } else {
