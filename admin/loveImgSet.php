@@ -538,11 +538,11 @@ $('#albumFilter').on('change', function() {
         dataTableInstance.column(4).search('').draw();
         $('#filterInfo').text('');
     } else if (albumId === 'null') {
-        dataTableInstance.column(4).search('未分类').draw();
+        dataTableInstance.column(4).search('未分类', true, false).draw();
         $('#filterInfo').text('(仅看未分类)');
     } else {
         const albumName = $(this).find('option:selected').text();
-        dataTableInstance.column(4).search(albumName).draw();
+        dataTableInstance.column(4).search(albumName, true, false).draw();
         $('#filterInfo').text(`(${albumName})`);
     }
 });
