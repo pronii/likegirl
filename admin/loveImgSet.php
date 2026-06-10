@@ -257,7 +257,7 @@ let isDragging = false;
 let dragStartValue = false;
 
 $(document).ready(function() {
-    if ($.fn.DataTable.isDataTable('#basic-datatable')) {
+    if ($.fn.DataTable && $.fn.DataTable.isDataTable('#basic-datatable')) {
         $('#basic-datatable').DataTable().destroy();
     }
 
