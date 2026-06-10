@@ -240,6 +240,9 @@ function del(id, imgText) {
     });
 }
 
+let isDragging = false;
+let dragStartValue = false;
+
 $('#selectAll').on('click', function() {
     const isChecked = $(this).prop('checked');
     $('.photo-checkbox:visible').each(function() {
@@ -445,6 +448,8 @@ function batchTransfer() {
                         // 更新data属性
                         row.attr('data-album-id', albumId);
                         row.attr('data-album-name', finalAlbumName);
+                        row.data('album-id', parseInt(albumId));
+                        row.data('album-name', finalAlbumName);
                         console.log('更新行 #row-' + id + ': albumId=' + albumId + ', albumName=' + finalAlbumName);
                     });
                     clearSelection();
