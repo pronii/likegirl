@@ -387,9 +387,8 @@ function batchDelete() {
             success: function(res) {
                 if (res && res.code === 200) {
                     ids.forEach(function(id) {
-                        dataTableInstance.row('#row-' + id).remove();
+                        $('#row-' + id).remove();
                     });
-                    dataTableInstance.draw(false);
                     clearSelection();
                     Swal.fire({
                         icon: 'success',
