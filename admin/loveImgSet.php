@@ -385,7 +385,6 @@ function batchDelete() {
             data: { ids: ids },
             dataType: 'json',
             success: function(res) {
-                console.log('删除响应:', res);
                 if (res && res.code === 200) {
                     ids.forEach(function(id) {
                         dataTableInstance.row('#row-' + id).remove();
@@ -404,7 +403,6 @@ function batchDelete() {
                 }
             },
             error: function(xhr, status, error) {
-                console.error('删除错误:', xhr, status, error);
                 let errorMsg = '请求失败，请稍后重试';
                 try {
                     const res = JSON.parse(xhr.responseText);
@@ -476,7 +474,6 @@ function batchTransfer() {
             data: { ids: ids, album_id: albumId },
             dataType: 'json',
             success: function(res) {
-                console.log('转移响应:', res);
                 if (res && res.code === 200) {
                     const finalAlbumName = res.album_name || albumName;
                     ids.forEach(function(id) {
@@ -496,7 +493,6 @@ function batchTransfer() {
                 }
             },
             error: function(xhr, status, error) {
-                console.error('转移错误:', xhr, status, error);
                 let errorMsg = '请求失败，请稍后重试';
                 try {
                     const res = JSON.parse(xhr.responseText);
