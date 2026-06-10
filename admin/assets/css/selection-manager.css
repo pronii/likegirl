@@ -1,0 +1,93 @@
+.floating-counter {
+    position: fixed;
+    right: 24px;
+    bottom: 96px;
+    z-index: 1040;
+    display: none;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    color: #fff;
+    background: #313a46;
+    border-radius: 18px;
+    box-shadow: 0 8px 24px rgba(49, 58, 70, 0.24);
+    font-size: 13px;
+}
+
+.floating-counter.show {
+    display: inline-flex;
+}
+
+.floating-batch-bar {
+    position: fixed;
+    left: 50%;
+    bottom: -120px;
+    z-index: 1050;
+    width: min(760px, calc(100vw - 32px));
+    transform: translateX(-50%);
+    color: #fff;
+    background: #313a46;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    box-shadow: 0 14px 40px rgba(49, 58, 70, 0.26);
+    transition: bottom 0.22s ease;
+}
+
+.floating-batch-bar.show {
+    bottom: 24px;
+}
+
+.batch-bar-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 14px;
+}
+
+.batch-info,
+.batch-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.batch-info {
+    white-space: nowrap;
+}
+
+.batch-actions {
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+.batch-close {
+    color: #313a46;
+}
+
+@media (max-width: 576px) {
+    .floating-counter {
+        right: 12px;
+        bottom: 116px;
+    }
+
+    .floating-batch-bar.show {
+        bottom: 12px;
+    }
+
+    .batch-bar-content {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .batch-info,
+    .batch-actions {
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .batch-actions .btn {
+        flex: 1 1 auto;
+    }
+}
