@@ -21,8 +21,8 @@ $albumRes = mysqli_query($connect, "SELECT id, album_name FROM love_album ORDER 
 
 <style>
     .img-thumbnail {
-        width: 80px;
-        height: 60px;
+        width: 120px;
+        height: 90px;
         object-fit: cover;
         border-radius: 6px;
         border: 1px solid #dee2e6;
