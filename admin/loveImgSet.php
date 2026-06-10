@@ -533,18 +533,23 @@ $(document).on('click', '[data-action="preview"]', function() {
 
 $('#albumFilter').on('change', function() {
     const albumId = $(this).val();
+    console.log('相册筛选触发 - albumId:', albumId);
 
     if (albumId === '') {
+        console.log('清空筛选，显示全部');
         dataTableInstance.column(4).search('').draw();
         $('#filterInfo').text('');
     } else if (albumId === 'null') {
+        console.log('筛选未分类相册');
         dataTableInstance.column(4).search('未分类', true, false).draw();
         $('#filterInfo').text('(仅看未分类)');
     } else {
         const albumName = $(this).find('option:selected').text();
+        console.log('筛选相册:', albumName);
         dataTableInstance.column(4).search(albumName, true, false).draw();
         $('#filterInfo').text(`(${albumName})`);
     }
+    console.log('筛选后显示行数:', dataTableInstance.rows({search: 'applied'}).count());
 });
 
 $(document).on('keydown', function(e) {
