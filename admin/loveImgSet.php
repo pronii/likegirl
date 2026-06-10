@@ -257,6 +257,12 @@ let isDragging = false;
 let dragStartValue = false;
 
 $(document).ready(function() {
+    // 等待DataTable库加载
+    if (typeof $.fn.DataTable === 'undefined') {
+        console.error('DataTable库未加载');
+        return;
+    }
+
     if ($.fn.DataTable && $.fn.DataTable.isDataTable('#basic-datatable')) {
         $('#basic-datatable').DataTable().destroy();
     }
