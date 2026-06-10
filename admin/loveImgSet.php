@@ -534,6 +534,12 @@ $(document).on('click', '[data-action="preview"]', function() {
 $('#albumFilter').on('change', function() {
     const albumId = $(this).val();
     console.log('相册筛选触发 - albumId:', albumId);
+    console.log('dataTableInstance:', dataTableInstance);
+
+    if (!dataTableInstance) {
+        console.error('DataTable实例未初始化');
+        return;
+    }
 
     if (albumId === '') {
         console.log('清空筛选，显示全部');
