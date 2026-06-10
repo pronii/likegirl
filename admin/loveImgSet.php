@@ -261,6 +261,8 @@ $(document).ready(function() {
         return;
     }
 
+    console.log('DataTable库已加载，开始初始化');
+
     if ($.fn.DataTable && $.fn.DataTable.isDataTable('#basic-datatable')) {
         $('#basic-datatable').DataTable().destroy();
     }
@@ -276,6 +278,8 @@ $(document).ready(function() {
             updateBatchPanel();
         }
     });
+
+    console.log('DataTable初始化完成，实例:', dataTableInstance);
 
     dataTableInstance.on('draw', function() {
         updateSelectAllPagesButton();
@@ -302,6 +306,8 @@ $(document).ready(function() {
         }
         console.log('筛选后显示行数:', dataTableInstance.rows({search: 'applied'}).count());
     });
+
+    console.log('相册筛选事件已绑定');
 });
 
 $('#selectAll').on('click', function() {
