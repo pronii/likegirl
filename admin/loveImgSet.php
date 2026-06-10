@@ -533,17 +533,16 @@ $(document).on('click', '[data-action="preview"]', function() {
 
 $('#albumFilter').on('change', function() {
     const albumId = $(this).val();
-    const table = $('#basic-datatable').DataTable();
 
     if (albumId === '') {
-        table.column(4).search('').draw();
+        dataTableInstance.column(4).search('').draw();
         $('#filterInfo').text('');
     } else if (albumId === 'null') {
-        table.column(4).search('未分类').draw();
+        dataTableInstance.column(4).search('未分类').draw();
         $('#filterInfo').text('(仅看未分类)');
     } else {
         const albumName = $(this).find('option:selected').text();
-        table.column(4).search(albumName).draw();
+        dataTableInstance.column(4).search(albumName).draw();
         $('#filterInfo').text(`(${albumName})`);
     }
 });
