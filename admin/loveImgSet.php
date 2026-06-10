@@ -438,8 +438,13 @@ function batchTransfer() {
                 if (res && res.code === 200) {
                     const finalAlbumName = res.album_name || albumName;
                     ids.forEach(function(id) {
-                        const albumCell = $('#row-' + id).find('td:eq(4)');
+                        const row = $('#row-' + id);
+                        const albumCell = row.find('td:eq(4)');
                         albumCell.html(`<span class="album-badge"><i class="mdi mdi-folder"></i> ${escapeHtml(finalAlbumName)}</span>`);
+
+                        // 更新data属性
+                        row.attr('data-album-id', albumId);
+                        row.attr('data-album-name', finalAlbumName);
                     });
                     clearSelection();
                     Swal.fire({
