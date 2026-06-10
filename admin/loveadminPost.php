@@ -2,16 +2,8 @@
 session_start();
 $file = $_SERVER['PHP_SELF'];
 
-function checkQQ($qq)
-{
-    if (preg_match("/^[1-9][0-9]{4,}$/", $qq)) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
 include_once 'connect.php';
+include_once 'Function.php';
 
 if (isset($_SESSION['loginadmin']) && $_SESSION['loginadmin'] <> '') {
     $boy = htmlspecialchars(trim($_POST['boy']));

@@ -24,14 +24,11 @@ $imgurl = $_GET['imgurl'];
                     <script>
                         function myOnClickHandler(obj) {
                             var input = document.getElementById("switch3");
-                            var imgurl = document.getElementById("img_url")
-                            console.log(input);
+                            var imgurl = document.getElementById("img_url");
                             if (obj.checked) {
-                                console.log("打开");
                                 input.setAttribute("value", "1");
                                 imgurl.style.display = "block";
                             } else {
-                                console.log("关闭");
                                 input.setAttribute("value", "0");
                                 imgurl.style.display = "none";
                             }

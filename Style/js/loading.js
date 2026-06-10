@@ -132,9 +132,7 @@
 			    });
 		    };
 		    defaultProp._createLoading = function(){
-		    	//不能生成两个loading data-name 一样的loading
 		    	if($(".cpt-loading-mask[data-name="+opt.name+"]").length > 0){
-		    		// console.error('loading mask cant has same date-name('+opt.name+'), you cant set "date-name" prop when you create it');
 		    		return
 		    	}
 				

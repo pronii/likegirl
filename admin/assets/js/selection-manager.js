@@ -30,7 +30,6 @@ class SelectionManager {
      */
     init() {
         if (this.isInitialized) {
-            console.warn('SelectionManager already initialized');
             return;
         }
 
@@ -53,7 +52,6 @@ class SelectionManager {
         this.updateCounter();
 
         this.isInitialized = true;
-        console.log('SelectionManager initialized');
     }
 
     /**
@@ -244,7 +242,6 @@ class SelectionManager {
             const state = Array.from(this.selectedIds);
             sessionStorage.setItem('photoSelection', JSON.stringify(state));
         } catch (error) {
-            console.error('Failed to save selection state:', error);
         }
     }
 
@@ -271,7 +268,6 @@ class SelectionManager {
             this.updateSelectAllState();
             this.updateCounter();
         } catch (error) {
-            console.error('Failed to restore selection state:', error);
             // Clear corrupted state
             sessionStorage.removeItem('photoSelection');
         }
@@ -311,7 +307,6 @@ class SelectionManager {
         this.saveSelectionState();
         this.updateCounter();
 
-        console.log('Selection cleared');
     }
 
     /**
@@ -319,7 +314,6 @@ class SelectionManager {
      */
     selectPhotos(photoIds) {
         if (!Array.isArray(photoIds)) {
-            console.error('selectPhotos expects an array of IDs');
             return;
         }
 
@@ -334,7 +328,6 @@ class SelectionManager {
      */
     deselectPhotos(photoIds) {
         if (!Array.isArray(photoIds)) {
-            console.error('deselectPhotos expects an array of IDs');
             return;
         }
 
@@ -368,7 +361,6 @@ class SelectionManager {
         this.clearSelection();
         this.isInitialized = false;
 
-        console.log('SelectionManager destroyed');
     }
 }
 

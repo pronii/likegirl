@@ -12,10 +12,11 @@
  * @Message：开发不易 版权信息请保留 (更改版权可耻 请勿使用本程序)
 -->
 
-
 <?php
 include ($_SERVER['DOCUMENT_ROOT'] . '/ipjc.php');
-error_reporting(0);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
 include_once 'connect.php';
 include_once 'Function.php';
 $sql = "select * from login where user = '" . $_SESSION['loginadmin'] . " ' ";

@@ -12,7 +12,10 @@
  * @Message：开发不易 版权信息请保留 (删除/修改作者版权的Dog请勿使用 感谢配合)
 -->
 <?php
-error_reporting(0);
+// 生产环境禁止显示错误，开发环境显示所有错误
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
 include ("ipjc.php");
 include_once ("ip.php");
 include_once 'admin/connect.php';
@@ -34,12 +37,7 @@ $Animation = $text['Animation'];
 ?>
 
 
-
 <script>
-
-    console.log("%c Q & V | 3439780232", "color:#fff;background:#000;padding:8px 15px;font-weight: 700;border-radius:15px");
-    console.log("%c Like Girl 5.2.1-Stable | Powered by Ki", "color:#fff;font-weight: 700;background:linear-gradient(270deg,#986fee,#8695e6,#68b7dd,#18d7d3);padding:8px 15px;border-radius:15px");
-    
 
     function setupVideoPlayer(video) {
         var videoContainer = $('<div class="video-container"></div>');
