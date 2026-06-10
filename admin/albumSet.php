@@ -2,6 +2,7 @@
 session_start();
 include_once 'Nav.php';
 
+mysqli_set_charset($connect, "utf8mb4");
 $loveImg = "select * from love_album order by sort_order asc, id desc";
 $resImg = mysqli_query($connect, $loveImg);
 ?>
@@ -57,7 +58,8 @@ $resImg = mysqli_query($connect, $loveImg);
                                         <i class="mdi mdi-clipboard-text-play-outline mr-1"></i>修改
                                     </button>
                                 </a>
-                                <a href="javascript:del(<?php echo $list['id']; ?>,'<?php echo $list['album_name']; ?>');">
+                                <a href="albumDel.php?id=<?php echo $list['id']; ?>"
+                                   onclick="return confirmAlbumDelete(<?php echo json_encode($list['album_name'], JSON_UNESCAPED_UNICODE); ?>);">
                                     <button type="button" class="btn btn-danger btn-rounded btn-sm">
                                         <i class="mdi mdi-delete-empty mr-1"></i>删除
                                     </button>
@@ -75,10 +77,8 @@ $resImg = mysqli_query($connect, $loveImg);
 </div>
 
 <script>
-    function del(id, name) {
-        if (confirm('您确认要删除相册 "' + name + '" 吗？\n注意：相册下的图片不会被删除，会移动到默认相册。')) {
-            location.href = 'albumDel.php?id=' + id;
-        }
+    function confirmAlbumDelete(name) {
+        return confirm('确定要删除相册 "' + name + '" 吗？\n注意：相册下的图片不会删除，会移动到默认相册。');
     }
 </script>
 <?php

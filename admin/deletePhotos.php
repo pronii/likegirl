@@ -1,8 +1,10 @@
 <?php
 session_start();
-header('Content-Type: application/json; charset=utf-8');
 
+ob_start();
 include_once 'connect.php';
+ob_end_clean();
+header('Content-Type: application/json; charset=utf-8');
 
 // 检查登录状态
 if (!isset($_SESSION['loginadmin']) || $_SESSION['loginadmin'] == '') {
@@ -44,7 +46,7 @@ mysqli_begin_transaction($connect);
 try {
     // 先查询要删除的照片数据，用于返回和撤销功能
     $placeholders = implode(',', array_fill(0, count($validIds), '?'));
-    $selectSql = "SELECT id, img, text, date, album_id FROM loveImg WHERE id IN ($placeholders)";
+    $selectSql = "SELECT id, imgUrl, imgText, imgDatd, album_id FROM loveImg WHERE id IN ($placeholders)";
     $selectStmt = mysqli_prepare($connect, $selectSql);
 
     if (!$selectStmt) {
@@ -70,13 +72,20 @@ try {
     while ($row = mysqli_fetch_assoc($selectResult)) {
         $deletedPhotos[] = [
             'id' => $row['id'],
-            'img' => $row['img'],
-            'text' => $row['text'],
-            'date' => $row['date'],
+            'img' => $row['imgUrl'],
+            'text' => $row['imgText'],
+            'date' => $row['imgDatd'],
+            'imgUrl' => $row['imgUrl'],
+            'imgText' => $row['imgText'],
+            'imgDatd' => $row['imgDatd'],
             'album_id' => $row['album_id']
         ];
     }
     mysqli_stmt_close($selectStmt);
+
+    if (empty($deletedPhotos)) {
+        throw new Exception('没有找到可删除的照片，请检查照片ID是否正确');
+    }
 
     // 使用预处理语句构建删除SQL，防止SQL注入
     $deleteSql = "DELETE FROM loveImg WHERE id IN ($placeholders)";
