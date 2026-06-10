@@ -13,10 +13,6 @@ $resImg = mysqli_query($connect, $loveImg);
 $albumRes = mysqli_query($connect, "SELECT id, album_name FROM love_album ORDER BY sort_order ASC");
 ?>
 
-<link href="assets/css/vendor/dataTables.bootstrap4.css" rel="stylesheet" type="text/css"/>
-<link href="assets/css/vendor/responsive.bootstrap4.css" rel="stylesheet" type="text/css"/>
-<link href="assets/css/vendor/buttons.bootstrap4.css" rel="stylesheet" type="text/css"/>
-<link href="assets/css/vendor/select.bootstrap4.css" rel="stylesheet" type="text/css"/>
 <link href="assets/css/selection-manager.css" rel="stylesheet" type="text/css"/>
 
 <style>
@@ -233,8 +229,8 @@ function del(id, imgText) {
             type: 'GET',
             data: { id: id, imgText: imgText },
             success: function() {
-                const table = $('#basic-datatable').DataTable();
-                table.row('#row-' + id).remove().draw(false);
+                $('#row-' + id).remove();
+                updateSerialNumbers();
                 Swal.fire('已删除', '照片已删除', 'success');
             },
             error: function(xhr) {
@@ -243,154 +239,6 @@ function del(id, imgText) {
         });
     });
 }
-
-let dataTableInstance;
-let isDragging = false;
-let dragStartValue = false;
-
-function loadDataTablesAssets(callback) {
-    const dtApi = window.jQuery && (window.jQuery.fn.DataTable || window.jQuery.fn.dataTable);
-    if (dtApi) {
-        callback();
-        return;
-    }
-
-    const originalDefine = window.define;
-    const scripts = [
-        'assets/js/vendor/jquery.dataTables.min.js',
-        'assets/js/vendor/dataTables.bootstrap4.js',
-        'assets/js/vendor/dataTables.responsive.min.js',
-        'assets/js/vendor/responsive.bootstrap4.min.js'
-    ];
-
-    function appendGuard() {
-        const guard = document.createElement('script');
-        guard.textContent = 'var define = undefined;';
-        document.head.appendChild(guard);
-    }
-
-    function loadNext(index) {
-        if (index >= scripts.length) {
-            window.define = originalDefine;
-            callback();
-            return;
-        }
-
-        appendGuard();
-
-        const script = document.createElement('script');
-        script.src = scripts[index];
-        script.onload = function() {
-            loadNext(index + 1);
-        };
-        script.onerror = function() {
-            console.error('DataTables脚本加载失败:', scripts[index]);
-            window.define = originalDefine;
-            callback();
-        };
-        document.head.appendChild(script);
-    }
-
-    loadNext(0);
-}
-
-$(document).ready(function() {
-    loadDataTablesAssets(function() {
-        const dtApi = $.fn.DataTable || $.fn.dataTable;
-        if (!dtApi) {
-            console.error('DataTable库未加载');
-            return;
-        }
-
-        console.log('DataTable库已加载，开始初始化', {
-            dtApiType: typeof dtApi,
-            hasDataTable: typeof $.fn.DataTable,
-            hasDataTableAlias: typeof $.fn.dataTable
-        });
-
-        if (dtApi && dtApi.isDataTable('#basic-datatable')) {
-            $('#basic-datatable').DataTable().destroy();
-        }
-
-        dataTableInstance = $('#basic-datatable').DataTable({
-        language: { url: '//cdn.datatables.net/plug-ins/1.10.24/i18n/Chinese.json' },
-        responsive: true,
-        searching: false,
-        columnDefs: [{ orderable: false, targets: 0 }],
-        drawCallback: function() {
-            $('.photo-checkbox:checked').each(function() {
-                $(this).closest('tr').addClass('row-selected');
-            });
-            updateBatchPanel();
-        }
-    });
-
-    console.log('DataTable初始化完成，实例:', dataTableInstance);
-
-    dataTableInstance.on('draw', function() {
-        updateSelectAllPagesButton();
-    });
-
-    function applyAlbumFilter() {
-        const albumId = $('#albumFilter').val() || '';
-        const albumName = $('#albumFilter').find('option:selected').text();
-        const allRows = dataTableInstance.rows().nodes().length;
-
-        console.log('[albumFilter] start', {
-            albumId,
-            albumName,
-            totalRows: allRows,
-            visibleBefore: dataTableInstance.rows({search: 'applied'}).count()
-        });
-
-        dataTableInstance.rows().every(function() {
-            const row = $(this.node());
-            const rowAlbumId = String(row.data('album-id') || '0');
-            const rowAlbumName = String(row.data('album-name') || '');
-
-            let shouldShow = true;
-            if (albumId === 'null') {
-                shouldShow = rowAlbumId === '0' || rowAlbumName === '未分类';
-            } else if (albumId !== '') {
-                shouldShow = rowAlbumId === albumId;
-            }
-
-            console.log('[albumFilter] row-check', {
-                rowId: row.attr('id'),
-                rowAlbumId,
-                rowAlbumName,
-                selectedAlbumId: albumId,
-                selectedAlbumName: albumName,
-                shouldShow
-            });
-
-            this.nodes().to$().toggle(shouldShow);
-        });
-
-        dataTableInstance.draw(false);
-
-        if (albumId === '') {
-            $('#filterInfo').text('');
-        } else if (albumId === 'null') {
-            $('#filterInfo').text('(仅看未分类)');
-        } else {
-            $('#filterInfo').text(`(${albumName})`);
-        }
-
-        console.log('[albumFilter] result', {
-            selectedAlbumId: albumId,
-            selectedAlbumName: albumName,
-            visibleAfter: dataTableInstance.rows({search: 'applied'}).count(),
-            visibleCheckboxes: $('.photo-checkbox:visible').length
-        });
-    }
-
-    $('#albumFilter').on('change', applyAlbumFilter);
-    applyAlbumFilter();
-
-        console.log('相册筛选事件已绑定');
-    });
-});
 
 $('#selectAll').on('click', function() {
     const isChecked = $(this).prop('checked');
@@ -693,6 +541,40 @@ $(document).on('click', 'tbody tr', function(e) {
     updateBatchPanel();
     updateSelectAllPagesButton();
 });
+
+// 原生相册筛选功能
+$('#albumFilter').on('change', function() {
+    const albumId = $(this).val();
+    const rows = $('#photoTbody tr');
+
+    if (albumId === '') {
+        rows.show();
+        $('#filterInfo').text('');
+    } else {
+        rows.each(function() {
+            const rowAlbumId = $(this).data('album-id').toString();
+            if ((albumId === 'null' && rowAlbumId === '0') || rowAlbumId === albumId) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+
+        const albumName = $(this).find('option:selected').text();
+        $('#filterInfo').text(`(${albumName})`);
+    }
+
+    updateSerialNumbers();
+});
+
+// 更新可见行序号
+function updateSerialNumbers() {
+    let num = 0;
+    $('#photoTbody tr:visible').each(function() {
+        num++;
+        $(this).find('.SerialNumber').text(num);
+    });
+}
 </script>
 
 <script src="assets/js/selection-manager.js"></script>
