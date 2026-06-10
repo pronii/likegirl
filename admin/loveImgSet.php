@@ -157,7 +157,10 @@ $albumRes = mysqli_query($connect, "SELECT id, album_name FROM love_album ORDER 
                         $albumName = $list['album_name'] ? $list['album_name'] : '未分类';
                         $albumClass = $list['album_name'] ? 'album-badge' : 'album-badge album-none';
                         ?>
-                        <tr id="row-<?php echo $list['id']; ?>" data-photo-id="<?php echo $list['id']; ?>">
+                        <tr id="row-<?php echo $list['id']; ?>"
+                            data-photo-id="<?php echo $list['id']; ?>"
+                            data-album-id="<?php echo (int)($list['album_id'] ?? 0); ?>"
+                            data-album-name="<?php echo htmlspecialchars($albumName, ENT_QUOTES, 'UTF-8'); ?>">
                             <td>
                                 <input type="checkbox" class="photo-checkbox" value="<?php echo $list['id']; ?>" data-checkbox="photo">
                             </td>
@@ -202,10 +205,6 @@ $albumRes = mysqli_query($connect, "SELECT id, album_name FROM love_album ORDER 
     </div>
 </div>
 
-<script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
-<script src="assets/js/vendor/dataTables.bootstrap4.js"></script>
-<script src="assets/js/vendor/dataTables.responsive.min.js"></script>
-<script src="assets/js/vendor/responsive.bootstrap4.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
@@ -249,22 +248,74 @@ let dataTableInstance;
 let isDragging = false;
 let dragStartValue = false;
 
-$(document).ready(function() {
-    // 等待DataTable库加载
-    if (typeof $.fn.DataTable === 'undefined') {
-        console.error('DataTable库未加载');
+function loadDataTablesAssets(callback) {
+    const dtApi = window.jQuery && (window.jQuery.fn.DataTable || window.jQuery.fn.dataTable);
+    if (dtApi) {
+        callback();
         return;
     }
 
-    console.log('DataTable库已加载，开始初始化');
+    const originalDefine = window.define;
+    const scripts = [
+        'assets/js/vendor/jquery.dataTables.min.js',
+        'assets/js/vendor/dataTables.bootstrap4.js',
+        'assets/js/vendor/dataTables.responsive.min.js',
+        'assets/js/vendor/responsive.bootstrap4.min.js'
+    ];
 
-    if ($.fn.DataTable && $.fn.DataTable.isDataTable('#basic-datatable')) {
-        $('#basic-datatable').DataTable().destroy();
+    function appendGuard() {
+        const guard = document.createElement('script');
+        guard.textContent = 'var define = undefined;';
+        document.head.appendChild(guard);
     }
 
-    dataTableInstance = $('#basic-datatable').DataTable({
+    function loadNext(index) {
+        if (index >= scripts.length) {
+            window.define = originalDefine;
+            callback();
+            return;
+        }
+
+        appendGuard();
+
+        const script = document.createElement('script');
+        script.src = scripts[index];
+        script.onload = function() {
+            loadNext(index + 1);
+        };
+        script.onerror = function() {
+            console.error('DataTables脚本加载失败:', scripts[index]);
+            window.define = originalDefine;
+            callback();
+        };
+        document.head.appendChild(script);
+    }
+
+    loadNext(0);
+}
+
+$(document).ready(function() {
+    loadDataTablesAssets(function() {
+        const dtApi = $.fn.DataTable || $.fn.dataTable;
+        if (!dtApi) {
+            console.error('DataTable库未加载');
+            return;
+        }
+
+        console.log('DataTable库已加载，开始初始化', {
+            dtApiType: typeof dtApi,
+            hasDataTable: typeof $.fn.DataTable,
+            hasDataTableAlias: typeof $.fn.dataTable
+        });
+
+        if (dtApi && dtApi.isDataTable('#basic-datatable')) {
+            $('#basic-datatable').DataTable().destroy();
+        }
+
+        dataTableInstance = $('#basic-datatable').DataTable({
         language: { url: '//cdn.datatables.net/plug-ins/1.10.24/i18n/Chinese.json' },
         responsive: true,
+        searching: false,
         columnDefs: [{ orderable: false, targets: 0 }],
         drawCallback: function() {
             $('.photo-checkbox:checked').each(function() {
@@ -280,29 +331,65 @@ $(document).ready(function() {
         updateSelectAllPagesButton();
     });
 
-    // 相册筛选
-    $('#albumFilter').on('change', function() {
-        const albumId = $(this).val();
-        console.log('相册筛选触发 - albumId:', albumId);
+    function applyAlbumFilter() {
+        const albumId = $('#albumFilter').val() || '';
+        const albumName = $('#albumFilter').find('option:selected').text();
+        const allRows = dataTableInstance.rows().nodes().length;
+
+        console.log('[albumFilter] start', {
+            albumId,
+            albumName,
+            totalRows: allRows,
+            visibleBefore: dataTableInstance.rows({search: 'applied'}).count()
+        });
+
+        dataTableInstance.rows().every(function() {
+            const row = $(this.node());
+            const rowAlbumId = String(row.data('album-id') || '0');
+            const rowAlbumName = String(row.data('album-name') || '');
+
+            let shouldShow = true;
+            if (albumId === 'null') {
+                shouldShow = rowAlbumId === '0' || rowAlbumName === '未分类';
+            } else if (albumId !== '') {
+                shouldShow = rowAlbumId === albumId;
+            }
+
+            console.log('[albumFilter] row-check', {
+                rowId: row.attr('id'),
+                rowAlbumId,
+                rowAlbumName,
+                selectedAlbumId: albumId,
+                selectedAlbumName: albumName,
+                shouldShow
+            });
+
+            this.nodes().to$().toggle(shouldShow);
+        });
+
+        dataTableInstance.draw(false);
 
         if (albumId === '') {
-            console.log('清空筛选，显示全部');
-            dataTableInstance.column(4).search('').draw();
             $('#filterInfo').text('');
         } else if (albumId === 'null') {
-            console.log('筛选未分类相册');
-            dataTableInstance.column(4).search('未分类', true, false).draw();
             $('#filterInfo').text('(仅看未分类)');
         } else {
-            const albumName = $(this).find('option:selected').text();
-            console.log('筛选相册:', albumName);
-            dataTableInstance.column(4).search(albumName, true, false).draw();
             $('#filterInfo').text(`(${albumName})`);
         }
-        console.log('筛选后显示行数:', dataTableInstance.rows({search: 'applied'}).count());
-    });
 
-    console.log('相册筛选事件已绑定');
+        console.log('[albumFilter] result', {
+            selectedAlbumId: albumId,
+            selectedAlbumName: albumName,
+            visibleAfter: dataTableInstance.rows({search: 'applied'}).count(),
+            visibleCheckboxes: $('.photo-checkbox:visible').length
+        });
+    }
+
+    $('#albumFilter').on('change', applyAlbumFilter);
+    applyAlbumFilter();
+
+        console.log('相册筛选事件已绑定');
+    });
 });
 
 $('#selectAll').on('click', function() {
