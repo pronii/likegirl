@@ -10,18 +10,20 @@ if (isset($_SESSION['loginadmin']) && $_SESSION['loginadmin'] <> '') {
     $WebPjax = trim($_POST['WebPjax']);
     $WebBlur = trim($_POST['WebBlur']);
 
-    $sql = "update text set title = '$title', logo = '$logo' , writing = '$writing' where id = '1'";
-
-    $result = mysqli_query($connect, $sql);
+    $stmt = mysqli_prepare($connect, "UPDATE text SET title = ?, logo = ?, writing = ? WHERE id = 1");
+    mysqli_stmt_bind_param($stmt, "sss", $title, $logo, $writing);
+    $result = mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
     if ($result) {
         echo "1";
     } else {
         echo "0";
     }
 
-
-    $diy = "update diySet set Pjaxkg = '$WebPjax' , Blurkg = '$WebBlur' where id = '1'";
-    $diyresult = mysqli_query($connect, $diy);
+    $stmt2 = mysqli_prepare($connect, "UPDATE diySet SET Pjaxkg = ?, Blurkg = ? WHERE id = 1");
+    mysqli_stmt_bind_param($stmt2, "ss", $WebPjax, $WebBlur);
+    $diyresult = mysqli_stmt_execute($stmt2);
+    mysqli_stmt_close($stmt2);
     if ($diyresult) {
         echo "3";
     } else {

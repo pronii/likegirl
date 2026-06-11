@@ -8,9 +8,11 @@ include_once 'connect.php';
 if (isset($_SESSION['loginadmin']) && $_SESSION['loginadmin'] <> '') {
     $jiequ = trim($_POST['jiequ']);
     $lanjiezf = htmlspecialchars(trim($_POST['lanjiezf']), ENT_QUOTES);
-    
-    $sql = "update leavSet set jiequ = '$jiequ',lanjiezf ='$lanjiezf'  ";
-    $result = mysqli_query($connect, $sql);
+
+    $stmt = mysqli_prepare($connect, "UPDATE leavSet SET jiequ = ?, lanjiezf = ?");
+    mysqli_stmt_bind_param($stmt, "ss", $jiequ, $lanjiezf);
+    $result = mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
     if ($result) {
         echo "1";
     } else {

@@ -19,8 +19,10 @@ if (!$icon) {
 }
 
 if (isset($_SESSION['loginadmin']) && $_SESSION['loginadmin'] <> '') {
-    $sql = "update lovelist set eventname = '$name',icon ='$icon',imgurl ='$img' where id ='$id' ";
-    $reslove = mysqli_query($connect, $sql);
+    $stmt = mysqli_prepare($connect, "UPDATE lovelist SET eventname = ?, icon = ?, imgurl = ? WHERE id = ?");
+    mysqli_stmt_bind_param($stmt, "sssi", $name, $icon, $img, $id);
+    $reslove = mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
     if ($reslove) {
         echo "1";
     } else {

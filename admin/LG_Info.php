@@ -1,11 +1,3 @@
-<div class="alert alert-success alert-dismissible bg-success text-white border-0 fade show" role="alert">
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-    </button>
-    <strong>温馨提醒 - </strong> 当前版本为开源版，作者已不在维护。如需稳定使用请考虑新作品【LGNewUI】限时购买特惠 — 2025/09/02 <button type="button"
-        id="myButton" class="btn btn-secondary btn-rounded" data-toggle='modal' data-target='#bs-example-modal-lg'>查看介绍</button>
-</div>
-
 <?php if ($login['user'] == $adminuser): ?>
     <div class="alert alert-danger alert-dismissible bg-danger text-white border-0 fade show" role="alert">
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">

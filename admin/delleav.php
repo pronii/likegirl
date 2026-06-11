@@ -9,8 +9,10 @@ if (isset($_SESSION['loginadmin']) && $_SESSION['loginadmin'] <> '') {
     $text = $_GET['text'];
     $QQ = $_GET['QQ'];
     if (is_numeric($id)) {
-        $sql = "delete from leaving where id = $id";
-        $result = mysqli_query($connect, $sql);
+        $stmt = mysqli_prepare($connect, "DELETE FROM leaving WHERE id = ?");
+        mysqli_stmt_bind_param($stmt, "i", $id);
+        $result = mysqli_stmt_execute($stmt);
+        mysqli_stmt_close($stmt);
         if ($result) {
             echo "<script>alert('删除内容成功');location.href = 'leavSet.php';</script>";
         } else {

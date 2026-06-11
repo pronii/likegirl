@@ -7,8 +7,10 @@ $file = $_SERVER['PHP_SELF'];
 if (isset($_SESSION['loginadmin']) && $_SESSION['loginadmin'] <> '') {
     $id = $_GET['id'];
     if (is_numeric($id)) {
-        $sql = "delete from article where id = $id";
-        $result = mysqli_query($connect, $sql);
+        $stmt = mysqli_prepare($connect, "DELETE FROM article WHERE id = ?");
+        mysqli_stmt_bind_param($stmt, "i", $id);
+        $result = mysqli_stmt_execute($stmt);
+        mysqli_stmt_close($stmt);
         if ($result) {
             echo "<script>alert('删除文章成功');location.href = 'littleSet.php';</script>";
         } else {

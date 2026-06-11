@@ -19,8 +19,10 @@ ini_set('log_errors', 1);
 error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
 include_once 'connect.php';
 include_once 'Function.php';
-$sql = "select * from login where user = '" . $_SESSION['loginadmin'] . " ' ";
-$loginresult = mysqli_query($connect, $sql);
+$stmt = mysqli_prepare($connect, "SELECT * FROM login WHERE user = ?");
+mysqli_stmt_bind_param($stmt, "s", $_SESSION['loginadmin']);
+mysqli_stmt_execute($stmt);
+$loginresult = mysqli_stmt_get_result($stmt);
 if (mysqli_num_rows($loginresult)) {
     $login = mysqli_fetch_array($loginresult);
 } else {
@@ -277,6 +279,14 @@ if (mysqli_num_rows($result)) {
                     </li>
 
                     <li class="side-nav-item">
+                        <a href="/admin/backupManager.php" class="side-nav-link">
+                            <i class="dripicons-database"></i>
+                            <span> 数据备份</span>
+                            <span class="menu-arrow"></span>
+                        </a>
+                    </li>
+
+                    <li class="side-nav-item">
                         <a href="/admin/Like_Girl.php" class="side-nav-link">
                             <i class="dripicons-information"></i>
                             <span> 关于Like Girl</span>
@@ -284,19 +294,6 @@ if (mysqli_num_rows($result)) {
                         </a>
                     </li>
                 </ul>
-
-
-                <!-- Help Box -->
-                <div class="help-box text-center">
-                    <a href="javascript: void(0);" class="float-right close-btn text-body">
-                        <i class="mdi mdi-close"></i>
-                    </a>
-                    <img src="assets/images/help-icon.svg" height="90" alt="Helper Icon Image" />
-                    <h5 class="mt-3">Like_Girl v5.2.1-Stable</h5>
-                    <p class="mb-3">愿得一心人 白头不相离</p>
-                    <a href="https://blog.kikiw.cn/index.php/archives/65/" target="_blank" class="btn btn-outline-primary btn-sm">购买Pro版本</a>
-                </div>
-                <!-- end Help Box -->
                 <!-- End Sidebar -->
 
 
