@@ -55,14 +55,11 @@ $albumRes = mysqli_query($connect, "SELECT id, album_name FROM love_album ORDER 
         border-color: #667eea;
         box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
     }
-    /* 优化复选框交互体验 */
-    .photo-checkbox,
-    #selectAll {
+    .photo-checkbox, #selectAll {
         width: 18px;
         height: 18px;
         cursor: pointer;
     }
-    /* 拖拽选择时禁止文字选中 */
     .drag-selecting {
         user-select: none;
         -webkit-user-select: none;
@@ -72,9 +69,97 @@ $albumRes = mysqli_query($connect, "SELECT id, album_name FROM love_album ORDER 
     tbody tr {
         cursor: pointer;
     }
+
+    @media (max-width: 768px) {
+        .card-body {
+            padding: 10px;
+        }
+        .header-title {
+            font-size: 16px !important;
+        }
+        .header-title .btn {
+            font-size: 11px;
+            padding: 4px 8px;
+        }
+        .header-title .btn i {
+            margin-right: 2px !important;
+        }
+        .img-thumbnail {
+            width: 80px;
+            height: 60px;
+        }
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        #basic-datatable {
+            font-size: 12px;
+            min-width: 500px;
+        }
+        #basic-datatable th, #basic-datatable td {
+            padding: 6px 4px;
+        }
+        #basic-datatable th:nth-child(2),
+        #basic-datatable td:nth-child(2) {
+            display: none;
+        }
+        #basic-datatable td:nth-child(4) {
+            max-width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .album-badge {
+            font-size: 10px;
+            padding: 2px 4px;
+        }
+        #basic-datatable td:last-child {
+            min-width: 90px;
+        }
+        #basic-datatable td:last-child .btn {
+            font-size: 11px;
+            padding: 4px 8px;
+            margin: 2px 0;
+            display: block;
+            width: 100%;
+        }
+        #basic-datatable td:last-child .btn i {
+            margin-right: 2px !important;
+        }
+        .floating-batch-bar {
+            bottom: 60px;
+        }
+        .batch-bar-content {
+            flex-direction: column;
+            gap: 8px;
+            padding: 8px;
+        }
+        .batch-info {
+            font-size: 12px;
+        }
+        .batch-actions {
+            width: 100%;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        .batch-actions .btn {
+            font-size: 10px;
+            padding: 5px 8px;
+            margin: 2px;
+        }
+        #albumFilter {
+            width: 100% !important;
+            min-width: auto !important;
+            margin-top: 8px;
+            font-size: 13px;
+        }
+        .mb-3 label {
+            font-size: 13px;
+        }
+    }
 </style>
 
-<div id="floatingCounter" class="floating-counter">
+<div id="floatingCounter" class="floating-counter" style="display: none;">
     <i class="mdi mdi-checkbox-marked-circle-outline"></i>
     <span id="floatingCount">0</span> 张已选
 </div>
@@ -110,7 +195,7 @@ $albumRes = mysqli_query($connect, "SELECT id, album_name FROM love_album ORDER 
                     <span class="ml-2 text-muted" id="filterInfo"></span>
                 </div>
 
-                <div id="batchActionPanel" class="floating-batch-bar">
+                <div id="batchActionPanel" class="floating-batch-bar" style="display: none;">
                     <div class="batch-bar-content">
                         <div class="batch-info">
                             <i class="mdi mdi-checkbox-multiple-marked"></i>
@@ -133,6 +218,7 @@ $albumRes = mysqli_query($connect, "SELECT id, album_name FROM love_album ORDER 
                     </div>
                 </div>
 
+                <div class="table-responsive">
                 <table id="basic-datatable" class="table dt-responsive nowrap" width="100%">
                     <thead>
                     <tr>
@@ -190,6 +276,7 @@ $albumRes = mysqli_query($connect, "SELECT id, album_name FROM love_album ORDER 
                     <?php } ?>
                     </tbody>
                 </table>
+                </div>
 
                 <div class="mt-3">
                     <button type="button" id="selectAllPages" class="btn btn-outline-primary btn-sm" style="display:none;">
@@ -273,8 +360,14 @@ function updateBatchPanel() {
     const selected = $('.photo-checkbox:checked').length;
     $('#selectedCount').text(selected);
     $('#floatingCount').text(selected);
-    $('#batchActionPanel').toggleClass('show', selected > 0);
-    $('#floatingCounter').toggleClass('show', selected > 0);
+
+    if (selected > 0) {
+        $('#batchActionPanel').addClass('show').show();
+        $('#floatingCounter').addClass('show').show();
+    } else {
+        $('#batchActionPanel').removeClass('show').hide();
+        $('#floatingCounter').removeClass('show').hide();
+    }
 }
 
 function updateSelectAllPagesButton() {

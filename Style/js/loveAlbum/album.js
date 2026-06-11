@@ -171,7 +171,7 @@ const LoveAlbumCore = {
                         <input type="checkbox" class="photo-selection-checkbox" data-photo-id="${photoId}">
                         <label class="checkbox-label" for="checkbox-${photoId}"></label>
                     </div>
-                    <img class="spotlight" src="Style/img/Loading2.gif" data-funlazy="${photo.img}" alt="${photo.text}" data-description="${photo.date}">
+                    <img class="spotlight" src="Style/img/Loading2.gif" data-funlazy="${photo.img}" alt="${photo.text}" data-description="${photo.date}" onclick="LoveAlbumCore.forceLoadAllImages(event)">
 
                     <div class="words" data-tip="${photo.text}" data-tip-position="top">
                         <i>${photo.date}</i>
@@ -180,6 +180,17 @@ const LoveAlbumCore = {
                 </div>
             </div>
         `;
+    },
+
+    forceLoadAllImages(event) {
+        $('.spotlight[data-funlazy]').each(function() {
+            const $img = $(this);
+            const realSrc = $img.attr('data-funlazy');
+            if (realSrc) {
+                $img.attr('src', realSrc);
+                $img.removeAttr('data-funlazy');
+            }
+        });
     }
 };
 
