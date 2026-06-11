@@ -43,16 +43,6 @@ include_once 'head.php';
 
     <script src="Style/js/image-optimize.js"></script>
     <script src="Style/js/loveAlbum.js"></script>
-    <script>
-        // 确保在所有脚本加载后初始化
-        window.addEventListener('load', function() {
-            setTimeout(function() {
-                if (typeof initLoveAlbum === 'function') {
-                    initLoveAlbum();
-                }
-            }, 100);
-        });
-    </script>
 
     <?php
     include_once 'footer.php';

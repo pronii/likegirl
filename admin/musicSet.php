@@ -18,14 +18,9 @@ include_once 'Nav.php';
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h4 class="header-title mb-0">音乐列表</h4>
-                        <div>
-                            <button type="button" class="btn btn-success mr-2" onclick="showAddModal()">
-                                <i class="mdi mdi-plus"></i> 手动添加
-                            </button>
-                            <button type="button" class="btn btn-primary" onclick="showSearchModal()">
-                                <i class="mdi mdi-magnify"></i> 搜索添加
-                            </button>
-                        </div>
+                        <button type="button" class="btn btn-primary" onclick="showAddModal()">
+                            <i class="mdi mdi-plus"></i> 添加音乐
+                        </button>
                     </div>
 
                     <div class="table-responsive">
@@ -36,7 +31,6 @@ include_once 'Nav.php';
                                     <th>封面</th>
                                     <th>歌曲名称</th>
                                     <th>艺术家</th>
-                                    <th>平台</th>
                                     <th>时长</th>
                                     <th>状态</th>
                                     <th style="width: 150px;">操作</th>
@@ -44,7 +38,7 @@ include_once 'Nav.php';
                             </thead>
                             <tbody id="musicList">
                                 <tr>
-                                    <td colspan="8" class="text-center">加载中...</td>
+                                    <td colspan="7" class="text-center">加载中...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -55,35 +49,6 @@ include_once 'Nav.php';
     </div>
 </div>
 
-<!-- 搜索音乐模态框 -->
-<div class="modal fade" id="searchModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">搜索音乐</h5>
-                <button type="button" class="close" data-dismiss="modal">
-                    <span>&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="input-group mb-3">
-                    <input type="text" class="form-control" id="searchKeyword" placeholder="输入歌曲名或歌手名">
-                    <div class="input-group-append">
-                        <button class="btn btn-primary" onclick="searchMusic()">
-                            <i class="mdi mdi-magnify"></i> 搜索
-                        </button>
-                    </div>
-                </div>
-
-                <div id="searchResults" style="max-height: 400px; overflow-y: auto;">
-                    <p class="text-center text-muted">🎵 输入关键词搜索<br><small>自动使用后台配置的API</small></p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 手动添加音乐模态框 -->
 <div class="modal fade" id="musicModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -149,12 +114,6 @@ include_once 'Nav.php';
 <script>
 $(document).ready(function() {
     loadMusicList();
-
-    $('#searchKeyword').keypress(function(e) {
-        if (e.which == 13) {
-            searchMusic();
-        }
-    });
 });
 
 function loadMusicList() {
@@ -171,7 +130,7 @@ function loadMusicList() {
 
 function renderMusicList(list) {
     if (list.length === 0) {
-        $('#musicList').html('<tr><td colspan="8" class="text-center">暂无音乐</td></tr>');
+        $('#musicList').html('<tr><td colspan="7" class="text-center">暂无音乐</td></tr>');
         return;
     }
 
@@ -186,15 +145,12 @@ function renderMusicList(list) {
             '<div style="width: 40px; height: 40px; background: #f0f0f0; border-radius: 4px; display: flex; align-items: center; justify-content: center;"><i class="mdi mdi-music"></i></div>';
 
         const duration = formatDuration(item.duration);
-        const platformMap = {netease: '网易云', tencent: 'QQ音乐', kugou: '酷狗', url: 'URL'};
-        const platform = platformMap[item.platform] || (item.music_url && !item.song_id ? 'URL' : '-');
 
         html += `<tr>
             <td>${item.id}</td>
             <td>${cover}</td>
             <td>${item.title}</td>
             <td>${item.artist || '-'}</td>
-            <td><small>${platform}</small></td>
             <td>${duration}</td>
             <td>${status}</td>
             <td>
@@ -220,83 +176,8 @@ function formatDuration(seconds) {
     return `${min}:${sec.toString().padStart(2, '0')}`;
 }
 
-function showSearchModal() {
-    $('#searchKeyword').val('');
-    $('#searchResults').html('<p class="text-center text-muted">请输入关键词搜索音乐</p>');
-    $('#searchModal').modal('show');
-}
-
-function searchMusic() {
-    const keyword = $('#searchKeyword').val().trim();
-
-    if (!keyword) {
-        toastr.warning('请输入搜索关键词');
-        return;
-    }
-
-    $('#searchResults').html('<p class="text-center"><i class="mdi mdi-loading mdi-spin"></i> 搜索中...<br><small>正在使用后台配置的API</small></p>');
-
-    $.get('../api/metingSearchApi.php', {keyword: keyword}, function(res) {
-        if (res.success && res.data.length > 0) {
-            renderSearchResults(res.data);
-        } else {
-            $('#searchResults').html('<p class="text-center text-muted">未找到相关音乐<br><small>请检查后台API配置是否正确</small></p>');
-        }
-    }, 'json').fail(function() {
-        $('#searchResults').html('<p class="text-center text-danger">搜索失败<br><small>请检查API配置或网络连接</small></p>');
-    });
-}
-
-function renderSearchResults(list) {
-    let html = '<div class="list-group">';
-    list.forEach(item => {
-        html += `
-            <div class="list-group-item list-group-item-action" style="cursor: pointer;" onclick='addMusic(${JSON.stringify(item)})'>
-                <div class="d-flex align-items-center">
-                    <img src="${item.cover}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; margin-right: 15px;">
-                    <div class="flex-grow-1">
-                        <h6 class="mb-1">${item.name}</h6>
-                        <small class="text-muted">${item.artist} - ${item.album}</small>
-                    </div>
-                    <span class="badge badge-primary">${formatDuration(item.duration)}</span>
-                </div>
-            </div>
-        `;
-    });
-    html += '</div>';
-    $('#searchResults').html(html);
-}
-
-function addMusic(item) {
-    if (!confirm(`确定添加《${item.name}》？`)) return;
-
-    const data = {
-        title: item.name,
-        artist: item.artist,
-        platform: item.platform || 'netease',
-        song_id: item.id,
-        music_url: '', // API添加时URL可为空，播放时动态获取
-        cover_url: item.cover,
-        duration: item.duration,
-        sort_order: 0,
-        is_enabled: 1
-    };
-
-    $.post('musicSave.php', data, function(res) {
-        if (res.success) {
-            toastr.success('添加成功');
-            $('#searchModal').modal('hide');
-            loadMusicList();
-        } else {
-            toastr.error(res.message || '添加失败');
-        }
-    }, 'json').fail(function() {
-        toastr.error('网络错误');
-    });
-}
-
 function showAddModal() {
-    $('#modalTitle').text('手动添加音乐');
+    $('#modalTitle').text('添加音乐');
     $('#musicForm')[0].reset();
     $('#musicId').val('');
     $('#is_enabled').prop('checked', true);

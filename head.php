@@ -184,7 +184,33 @@ if ($diy['Pjaxkg'] == "1"):
             NProgress.start();
         });
         $(document).on('pjax:complete', function () {
-            $(".love_img img,.lovelist img,.little_texts img").addClass("spotlight");
+            $(".love_img img,.lovelist img,.little_texts img").addClass("spotlight").each(function () {
+                const self = this;
+                this.onclick = function (e) {
+                    e.preventDefault();
+
+                    // 先强制替换所有懒加载图片的src
+                    $('.spotlight[data-funlazy]').each(function() {
+                        const $img = $(this);
+                        const realSrc = $img.attr('data-funlazy');
+                        if (realSrc) {
+                            $img.attr('src', realSrc);
+                            $img.removeAttr('data-funlazy');
+                        }
+                    });
+
+                    // 等待当前图片真正加载完成
+                    if (self.complete) {
+                        hs.expand(self);
+                    } else {
+                        self.onload = function() {
+                            hs.expand(self);
+                        };
+                    }
+
+                    return false;
+                }
+            });
             NProgress.done();
             
             FunLazy({

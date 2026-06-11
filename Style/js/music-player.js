@@ -10,8 +10,6 @@
             this.isPlaying = false;
             this.isMinimized = false;
             this.volume = 0.7;
-            this.currentSourceIndex = 0; // 当前音源索引
-            this.sources = []; // 可用音源列表
 
             this.init();
         }
@@ -54,11 +52,6 @@
                             <div class="music-title" id="musicTitle">暂无音乐</div>
                             <div class="music-artist" id="musicArtist">-</div>
                         </div>
-                        <div class="music-source" id="musicSource" style="text-align:center; margin-bottom:10px; display:none;">
-                            <button class="source-switch-btn" id="switchSourceBtn" title="切换音源">
-                                <i class="mdi mdi-swap-horizontal"></i> 切换音源
-                            </button>
-                        </div>
                         <div class="music-progress">
                             <div class="progress-bar-container" id="progressBar">
                                 <div class="progress-bar-fill" id="progressFill"></div>
@@ -96,7 +89,6 @@
             const playBtn = document.getElementById('playBtn');
             const prevBtn = document.getElementById('prevBtn');
             const nextBtn = document.getElementById('nextBtn');
-            const switchSourceBtn = document.getElementById('switchSourceBtn');
             const volumeSlider = document.getElementById('volumeSlider');
             const progressBar = document.getElementById('progressBar');
 
@@ -105,7 +97,6 @@
             playBtn.addEventListener('click', () => this.togglePlay());
             prevBtn.addEventListener('click', () => this.prev());
             nextBtn.addEventListener('click', () => this.next());
-            switchSourceBtn.addEventListener('click', () => this.switchSource());
 
             volumeSlider.addEventListener('input', (e) => {
                 this.volume = e.target.value / 100;
@@ -122,23 +113,13 @@
             this.audio.addEventListener('timeupdate', () => this.updateProgress());
             this.audio.addEventListener('ended', () => this.next());
             this.audio.addEventListener('loadedmetadata', () => this.updateDuration());
-
-            // 播放错误时自动切换音源
-            this.audio.addEventListener('error', () => {
-                console.error('播放失败，尝试切换音源...');
-                this.autoSwitchSource();
-            });
         }
 
-        async loadTrack(index) {
+        loadTrack(index) {
             if (index < 0 || index >= this.playlist.length) return;
 
             this.currentIndex = index;
             const track = this.playlist[index];
-            this.currentSourceIndex = 0;
-
-            // 获取可用音源
-            await this.loadSources(track);
 
             document.getElementById('musicTitle').textContent = track.title;
             document.getElementById('musicArtist').textContent = track.artist || '未知艺术家';
@@ -150,79 +131,7 @@
                 cover.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect fill="%23f0f0f0" width="200" height="200"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%23999" font-size="48"%3E♪%3C/text%3E%3C/svg%3E';
             }
 
-            // 显示/隐藏切换音源按钮
-            const switchBtn = document.getElementById('musicSource');
-            if (this.sources.length > 1) {
-                switchBtn.style.display = 'block';
-            } else {
-                switchBtn.style.display = 'none';
-            }
-        }
-
-        async loadSources(track) {
-            this.sources = [];
-
-            // 如果有直接URL，添加为第一个音源
-            if (track.music_url) {
-                this.sources.push({
-                    name: '默认源',
-                    url: track.music_url
-                });
-            }
-
-            // 如果有song_id，从API获取其他音源
-            if (track.song_id) {
-                try {
-                    const response = await fetch(`/api/musicSourceApi.php?song_id=${track.song_id}`);
-                    const result = await response.json();
-                    if (result.success && result.sources) {
-                        result.sources.forEach(source => {
-                            this.sources.push(source);
-                        });
-                    }
-                } catch (error) {
-                    console.error('获取音源失败:', error);
-                }
-            }
-
-            // 加载第一个音源
-            if (this.sources.length > 0) {
-                this.audio.src = this.sources[0].url;
-                console.log('当前音源:', this.sources[0].name);
-            }
-        }
-
-        switchSource() {
-            if (this.sources.length <= 1) return;
-
-            this.currentSourceIndex = (this.currentSourceIndex + 1) % this.sources.length;
-            const currentTime = this.audio.currentTime;
-            const wasPlaying = this.isPlaying;
-
-            this.audio.src = this.sources[this.currentSourceIndex].url;
-            this.audio.currentTime = currentTime;
-
-            console.log('切换到音源:', this.sources[this.currentSourceIndex].name);
-
-            if (wasPlaying) {
-                this.audio.play().catch(() => {
-                    console.error('切换后播放失败');
-                });
-            }
-        }
-
-        autoSwitchSource() {
-            if (this.currentSourceIndex < this.sources.length - 1) {
-                setTimeout(() => {
-                    this.switchSource();
-                    if (this.isPlaying) {
-                        this.play();
-                    }
-                }, 500);
-            } else {
-                console.error('所有音源都播放失败');
-                this.pause();
-            }
+            this.audio.src = track.music_url;
         }
 
         togglePlay() {

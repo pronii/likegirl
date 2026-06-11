@@ -287,6 +287,18 @@ if (mysqli_num_rows($result)) {
                     </li>
 
                     <li class="side-nav-item">
+                        <a href="javascript: void(0);" class="side-nav-link">
+                            <i class="dripicons-music"></i>
+                            <span> 音乐播放器</span>
+                            <span class="menu-arrow"></span>
+                        </a>
+                        <div class="sub-menu">
+                            <a href="/admin/musicSet.php" class="side-nav-link">音乐管理</a>
+                            <a href="/admin/musicApiConfig.php" class="side-nav-link">API配置</a>
+                        </div>
+                    </li>
+
+                    <li class="side-nav-item">
                         <a href="/admin/Like_Girl.php" class="side-nav-link">
                             <i class="dripicons-information"></i>
                             <span> 关于Like Girl</span>

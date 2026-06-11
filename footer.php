@@ -118,30 +118,53 @@
                 setupVideoPlayer(video);
             });
 
-            
+
             $(".love_img img,.lovelist img,.little_texts img").addClass("spotlight").each(function () {
-                this.onclick = function () {
-                    return hs.expand(this)
+                const self = this;
+                this.onclick = function (e) {
+                    e.preventDefault();
+
+                    // 先强制替换所有懒加载图片的src
+                    $('.spotlight[data-funlazy]').each(function() {
+                        const $img = $(this);
+                        const realSrc = $img.attr('data-funlazy');
+                        if (realSrc) {
+                            $img.attr('src', realSrc);
+                            $img.removeAttr('data-funlazy');
+                        }
+                    });
+
+                    // 等待当前图片真正加载完成
+                    if (self.complete) {
+                        hs.expand(self);
+                    } else {
+                        self.onload = function() {
+                            hs.expand(self);
+                        };
+                    }
+
+                    return false;
                 }
-                toastr.options = {
-                    "closeButton": true,
-                    "debug": false,
-                    "newestOnTop": false,
-                    "progressBar": true,
-                    "rtl": false,
-                    "positionClass": "toast-top-right",
-                    "preventDuplicates": false,
-                    "onclick": null,
-                    "showDuration": 300,
-                    "hideDuration": 1000,
-                    "timeOut": 5000,
-                    "extendedTimeOut": 1000,
-                    "showEasing": "swing",
-                    "hideEasing": "linear",
-                    "showMethod": "fadeIn",
-                    "hideMethod": "fadeOut"
-                };
             });
+
+            toastr.options = {
+                "closeButton": true,
+                "debug": false,
+                "newestOnTop": false,
+                "progressBar": true,
+                "rtl": false,
+                "positionClass": "toast-top-right",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": 300,
+                "hideDuration": 1000,
+                "timeOut": 5000,
+                "extendedTimeOut": 1000,
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
 
             window.onscroll = function () {
                 let scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
@@ -229,5 +252,19 @@
     </div>
 <?php endif; ?>
 
+
+<!-- 音乐播放器 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@6.5.95/css/materialdesignicons.min.css">
+<link rel="stylesheet" href="/Style/css/music-player.css">
+<script>
+// 确保在页面加载后初始化播放器
+window.addEventListener('load', function() {
+    if (!document.getElementById('musicPlayer')) {
+        const script = document.createElement('script');
+        script.src = '/Style/js/music-player.js';
+        document.body.appendChild(script);
+    }
+});
+</script>
 
 <?php echo htmlspecialchars_decode($diy['footerCon'], ENT_QUOTES) ?>
