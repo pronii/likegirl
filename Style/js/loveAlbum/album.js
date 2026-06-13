@@ -2,14 +2,25 @@
 const LoveAlbumCore = {
     loadAlbums() {
         console.log('🔄 开始加载相册列表');
+        console.log('🕐 当前时间:', new Date().toLocaleTimeString());
+
         const $albumGallery = $('#albumGallery');
         const $loading = $('#loading');
+
+        console.log('📦 jQuery 查询结果:');
+        console.log('  - albumGallery 元素数量:', $albumGallery.length);
+        console.log('  - loading 元素数量:', $loading.length);
 
         // 检查容器
         if ($albumGallery.length === 0) {
             console.error('❌ 未找到相册容器 #albumGallery');
+            if ($loading.length > 0) {
+                $loading.hide();
+            }
             return;
         }
+
+        console.log('✅ 容器检查通过');
 
         $loading.show().text('数据加载中...');
         $albumGallery.empty();
@@ -22,20 +33,35 @@ const LoveAlbumCore = {
         LoveAlbumSelection.exit();
         LoveAlbumState.currentAlbumId = 0;
 
-        console.log('📡 发送 AJAX 请求到 getAlbums.php');
+        console.log('📡 准备发送 AJAX 请求');
+        console.log('  - URL: getAlbums.php');
+        console.log('  - 类型: POST');
+        console.log('  - 超时: 10000ms');
+
+        const ajaxStartTime = Date.now();
 
         $.ajax({
             url: 'getAlbums.php',
             type: 'POST',
             dataType: 'json',
             timeout: 10000, // 10秒超时
+            beforeSend: function() {
+                console.log('🚀 AJAX 请求已发送');
+            },
             success: function(res) {
-                console.log('📂 相册加载响应:', res);
+                const ajaxDuration = Date.now() - ajaxStartTime;
+                console.log('📂 相册加载响应 (耗时: ' + ajaxDuration + 'ms)');
+                console.log('  - 响应数据:', res);
+                console.log('  - 数据类型:', typeof res);
+                console.log('  - code:', res?.code);
+                console.log('  - data 长度:', res?.data?.length);
+
                 $loading.hide();
 
                 if (res.code === 200 && res.data && res.data.length > 0) {
                     console.log('✅ 成功加载相册数量:', res.data.length);
                     res.data.forEach(function(album, index) {
+                        console.log(`  📁 相册 ${index + 1}:`, album.album_name);
                         const coverImg = album.album_cover || 'Style/img/Loading2.gif';
                         const albumHtml = `
                             <div class="album-card col-lg-4 col-md-6 col-sm-12 col-sm-x-12" onclick="LoveAlbumCore.open(${album.id}, '${album.album_name}')" style="cursor: pointer;">
@@ -54,35 +80,52 @@ const LoveAlbumCore = {
                         $albumGallery.append(albumHtml);
                     });
 
+                    console.log('✅ HTML 渲染完成');
+
                     // 渐显动画
                     $albumGallery.children().each(function(index) {
                         const $item = $(this);
                         setTimeout(() => $item.addClass('show'), index * 100);
                     });
+
+                    console.log('✅ 动画启动');
                 } else {
-                    console.warn('⚠️ 无相册数据:', res);
+                    console.warn('⚠️ 无相册数据或响应格式错误:');
+                    console.warn('  - code:', res?.code);
+                    console.warn('  - message:', res?.message);
+                    console.warn('  - data:', res?.data);
                     $albumGallery.html('<div class="col-12 text-center" style="padding: 40px; color: #999;">暂无相册</div>');
                 }
             },
             error: function(xhr, status, error) {
-                console.error('❌ 加载相册失败:', {
-                    status: status,
-                    error: error,
-                    responseText: xhr.responseText,
-                    readyState: xhr.readyState,
-                    statusCode: xhr.status
-                });
+                const ajaxDuration = Date.now() - ajaxStartTime;
+                console.error('❌ 加载相册失败 (耗时: ' + ajaxDuration + 'ms)');
+                console.error('详细错误信息:');
+                console.error('  - status:', status);
+                console.error('  - error:', error);
+                console.error('  - xhr.readyState:', xhr.readyState);
+                console.error('  - xhr.status:', xhr.status);
+                console.error('  - xhr.statusText:', xhr.statusText);
+                console.error('  - xhr.responseText:', xhr.responseText?.substring(0, 200));
+
                 $loading.hide();
 
                 let errorMsg = '网络错误，无法加载相册列表！';
                 if (status === 'timeout') {
-                    errorMsg = '请求超时，请检查网络连接';
+                    errorMsg = '请求超时（超过10秒），请检查网络连接';
+                    console.error('💥 请求超时！');
                 } else if (status === 'parsererror') {
-                    errorMsg = '数据解析错误，请联系管理员';
+                    errorMsg = '数据解析错误，服务器返回了非JSON格式';
+                    console.error('💥 JSON解析失败！');
                 } else if (xhr.status === 404) {
-                    errorMsg = '接口不存在 (404)';
+                    errorMsg = '接口不存在 (404) - getAlbums.php 未找到';
+                    console.error('💥 404错误！');
                 } else if (xhr.status === 500) {
-                    errorMsg = '服务器错误 (500)';
+                    errorMsg = '服务器内部错误 (500)';
+                    console.error('💥 500错误！');
+                } else if (xhr.status === 0) {
+                    errorMsg = '网络连接失败，请检查服务器是否运行';
+                    console.error('💥 网络连接失败！');
                 }
 
                 $albumGallery.html(`
