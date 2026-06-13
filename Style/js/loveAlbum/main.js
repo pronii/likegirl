@@ -2,14 +2,44 @@
 const LoveAlbum = {
     init() {
         console.log('🚀 LoveAlbum 初始化开始');
-        const $albumGallery = $('#albumGallery');
-        console.log('📦 相册容器:', $albumGallery.length);
-        if ($albumGallery.length === 0) return;
 
+        // 检查 jQuery 是否加载
+        if (typeof jQuery === 'undefined') {
+            console.error('❌ jQuery 未加载，无法初始化');
+            return;
+        }
+
+        // 检查容器是否存在
+        const $albumGallery = $('#albumGallery');
+        console.log('📦 相册容器查询结果:', $albumGallery.length);
+
+        if ($albumGallery.length === 0) {
+            console.warn('⚠️ 未找到 #albumGallery 容器，可能不在相册页面');
+            return;
+        }
+
+        // 检查核心模块是否加载
+        if (typeof LoveAlbumState === 'undefined') {
+            console.error('❌ LoveAlbumState 模块未加载');
+            return;
+        }
+        if (typeof LoveAlbumCore === 'undefined') {
+            console.error('❌ LoveAlbumCore 模块未加载');
+            return;
+        }
+
+        console.log('✅ 所有检查通过，开始加载相册');
+
+        // 重置状态
         LoveAlbumState.reset();
+
+        // 加载相册列表
         LoveAlbumCore.loadAlbums();
 
+        // 绑定事件
         this.bindEvents();
+
+        console.log('✅ LoveAlbum 初始化完成');
     },
 
     bindEvents() {
@@ -57,5 +87,6 @@ const LoveAlbum = {
 
 // 全局初始化函数（向后兼容）
 function initLoveAlbum() {
+    console.log('📞 调用 initLoveAlbum()');
     LoveAlbum.init();
 }

@@ -1,10 +1,17 @@
 // 相册操作模块
 const LoveAlbumCore = {
     loadAlbums() {
+        console.log('🔄 开始加载相册列表');
         const $albumGallery = $('#albumGallery');
         const $loading = $('#loading');
 
-        $loading.show();
+        // 检查容器
+        if ($albumGallery.length === 0) {
+            console.error('❌ 未找到相册容器 #albumGallery');
+            return;
+        }
+
+        $loading.show().text('数据加载中...');
         $albumGallery.empty();
         $('#photoGallery').hide();
         $('#albumGallery').show();
@@ -15,42 +22,85 @@ const LoveAlbumCore = {
         LoveAlbumSelection.exit();
         LoveAlbumState.currentAlbumId = 0;
 
-        $.post('getAlbums.php', function(res) {
-            console.log('📂 相册加载响应:', res);
-            $loading.hide();
-            if (res.code === 200 && res.data.length > 0) {
-                console.log('✅ 加载相册数量:', res.data.length);
-                res.data.forEach(function(album, index) {
-                    const coverImg = album.album_cover || 'Style/img/Loading2.gif';
-                    const albumHtml = `
-                        <div class="album-card col-lg-4 col-md-6 col-sm-12 col-sm-x-12" onclick="LoveAlbumCore.open(${album.id}, '${album.album_name}')" style="cursor: pointer;">
-                            <div class="love_img album-folder">
-                                <div class="album-cover">
-                                    <img src="${coverImg}" alt="${album.album_name}" onerror="this.src='Style/img/Loading2.gif'">
-                                </div>
-                                <div class="album-info">
-                                    <h4 class="album-title">${album.album_name}</h4>
-                                    <p class="album-count">${album.photo_count || 0} 张照片</p>
-                                    ${album.album_desc ? `<p class="album-desc">${album.album_desc}</p>` : ''}
+        console.log('📡 发送 AJAX 请求到 getAlbums.php');
+
+        $.ajax({
+            url: 'getAlbums.php',
+            type: 'POST',
+            dataType: 'json',
+            timeout: 10000, // 10秒超时
+            success: function(res) {
+                console.log('📂 相册加载响应:', res);
+                $loading.hide();
+
+                if (res.code === 200 && res.data && res.data.length > 0) {
+                    console.log('✅ 成功加载相册数量:', res.data.length);
+                    res.data.forEach(function(album, index) {
+                        const coverImg = album.album_cover || 'Style/img/Loading2.gif';
+                        const albumHtml = `
+                            <div class="album-card col-lg-4 col-md-6 col-sm-12 col-sm-x-12" onclick="LoveAlbumCore.open(${album.id}, '${album.album_name}')" style="cursor: pointer;">
+                                <div class="love_img album-folder">
+                                    <div class="album-cover">
+                                        <img src="${coverImg}" alt="${album.album_name}" onerror="this.src='Style/img/Loading2.gif'">
+                                    </div>
+                                    <div class="album-info">
+                                        <h4 class="album-title">${album.album_name}</h4>
+                                        <p class="album-count">${album.photo_count || 0} 张照片</p>
+                                        ${album.album_desc ? `<p class="album-desc">${album.album_desc}</p>` : ''}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    `;
-                    $albumGallery.append(albumHtml);
-                });
+                        `;
+                        $albumGallery.append(albumHtml);
+                    });
 
-                $albumGallery.children().each(function(index) {
-                    const $item = $(this);
-                    setTimeout(() => $item.addClass('show'), index * 100);
+                    // 渐显动画
+                    $albumGallery.children().each(function(index) {
+                        const $item = $(this);
+                        setTimeout(() => $item.addClass('show'), index * 100);
+                    });
+                } else {
+                    console.warn('⚠️ 无相册数据:', res);
+                    $albumGallery.html('<div class="col-12 text-center" style="padding: 40px; color: #999;">暂无相册</div>');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('❌ 加载相册失败:', {
+                    status: status,
+                    error: error,
+                    responseText: xhr.responseText,
+                    readyState: xhr.readyState,
+                    statusCode: xhr.status
                 });
-            } else {
-                console.warn('⚠️ 无相册数据:', res);
-                $albumGallery.html('<div class="col-12 text-center" style="padding: 40px; color: #999;">暂无相册</div>');
+                $loading.hide();
+
+                let errorMsg = '网络错误，无法加载相册列表！';
+                if (status === 'timeout') {
+                    errorMsg = '请求超时，请检查网络连接';
+                } else if (status === 'parsererror') {
+                    errorMsg = '数据解析错误，请联系管理员';
+                } else if (xhr.status === 404) {
+                    errorMsg = '接口不存在 (404)';
+                } else if (xhr.status === 500) {
+                    errorMsg = '服务器错误 (500)';
+                }
+
+                $albumGallery.html(`
+                    <div class="col-12 text-center" style="padding: 40px;">
+                        <div style="color: #dc3545; font-size: 18px; margin-bottom: 10px;">
+                            <i class="mdi mdi-alert-circle" style="font-size: 48px;"></i>
+                        </div>
+                        <div style="color: #666;">${errorMsg}</div>
+                        <button class="btn btn-primary mt-3" onclick="LoveAlbumCore.loadAlbums()">
+                            <i class="mdi mdi-refresh"></i> 重新加载
+                        </button>
+                    </div>
+                `);
+
+                if (typeof toastr !== 'undefined') {
+                    toastr["error"](errorMsg, "Like_Girl");
+                }
             }
-        }, 'json').fail(function(xhr, status, error) {
-            console.error('❌ 加载相册失败:', status, error, xhr.responseText);
-            $loading.hide();
-            toastr["error"]("网络错误，无法加载相册列表！", "Like_Girl");
         });
     },
 

@@ -13,13 +13,12 @@ include_once 'Nav.php';
                         <label>相册名称 <span class="text-danger">*</span></label>
                         <input type="text" name="album_name" class="form-control" placeholder="请输入相册名称" maxlength="50" required>
                     </div>
-                    
-                    <div class="form-group mb-3">
-                        <label>相册封面URL</label>
-                        <input type="text" name="album_cover" class="form-control" placeholder="请输入封面图片URL地址（可选）">
-                        <small class="form-text text-muted">留空将显示默认封面</small>
-                    </div>
-                    
+
+                    <?php
+                    $currentCover = '';
+                    include_once 'albumCoverPicker.php';
+                    ?>
+
                     <div class="form-group mb-3">
                         <label>相册描述</label>
                         <input type="text" name="album_desc" class="form-control" placeholder="请输入相册描述（可选）" maxlength="200">

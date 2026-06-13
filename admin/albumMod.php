@@ -29,13 +29,12 @@ if (!$albumInfo) {
                         <label>相册名称 <span class="text-danger">*</span></label>
                         <input type="text" name="album_name" class="form-control" value="<?php echo $albumInfo['album_name'] ?>" maxlength="50" required>
                     </div>
-                    
-                    <div class="form-group mb-3">
-                        <label>相册封面URL</label>
-                        <input type="text" name="album_cover" class="form-control" value="<?php echo $albumInfo['album_cover'] ?>" placeholder="请输入封面图片URL地址（可选）">
-                        <small class="form-text text-muted">留空将显示默认封面</small>
-                    </div>
-                    
+
+                    <?php
+                    $currentCover = $albumInfo['album_cover'];
+                    include_once 'albumCoverPicker.php';
+                    ?>
+
                     <div class="form-group mb-3">
                         <label>相册描述</label>
                         <input type="text" name="album_desc" class="form-control" value="<?php echo $albumInfo['album_desc'] ?>" maxlength="200">

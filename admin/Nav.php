@@ -241,6 +241,11 @@ if (mysqli_num_rows($result)) {
                             <a href="/admin/loveImgSet.php" class="side-nav-link">图片管理
                                 <span class="badge badge-danger float-right"><?php echo $imgnub ?></span>
                             </a>
+                            <a href="/admin/loveImgAdd.php" class="side-nav-link">新增图片（外链）</a>
+                            <a href="/admin/batchAddImg.php" class="side-nav-link">批量添加（外链）</a>
+                            <a href="/admin/batchUploadLocal.php" class="side-nav-link">
+                                <i class="mdi mdi-cloud-upload"></i> 批量上传（本地文件）
+                            </a>
                             <a href="/admin/albumSet.php" class="side-nav-link">相册管理</a>
                         </div>
                     </li>

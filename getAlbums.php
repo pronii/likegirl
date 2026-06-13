@@ -9,13 +9,14 @@ include_once 'admin/connect.php';
 include_once 'admin/Function.php';
 
 try {
-    // 获取所有相册及照片数量
-    $sql = "SELECT a.*, COUNT(l.id) as photo_count 
-            FROM love_album a 
-            LEFT JOIN loveImg l ON a.id = l.album_id 
-            GROUP BY a.id 
+    // 获取所有相册及照片数量（排除默认相册）
+    $sql = "SELECT a.*, COUNT(l.id) as photo_count
+            FROM love_album a
+            LEFT JOIN loveImg l ON a.id = l.album_id
+            WHERE a.album_name NOT IN ('默认相册', 'Default Album')
+            GROUP BY a.id
             ORDER BY a.sort_order ASC, a.create_time DESC";
-    
+
     $result = mysqli_query($connect, $sql);
     
     $data = [];
