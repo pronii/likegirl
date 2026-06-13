@@ -35,9 +35,9 @@
         };
         
         $(function () {
-            
-            if (typeof initLoveAlbum === 'function') initLoveAlbum();
-            
+
+            // loveAlbum.js 内部会自动调用 initLoveAlbum
+
             initScrollButton('#MessageBtn', '#MessageArea', 800, 800);
 
                         
@@ -177,6 +177,7 @@
 
 
     </script>
+
     <style>
         .icon {
             width: 1.5em;

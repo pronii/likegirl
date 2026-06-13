@@ -4,6 +4,7 @@ include_once 'head.php';
 
 <head>
     <link rel="stylesheet" href="Style/css/loveImg.css?LikeGirl=<?php echo $version ?>">
+    <link rel="stylesheet" href="Style/css/image-optimize.css">
     <meta charset="utf-8" />
     <title><?php echo $text['title'] ?> — 恋爱相册</title>
 </head>
@@ -40,10 +41,17 @@ include_once 'head.php';
         </div>
     </div>
 
+    <script src="Style/js/image-optimize.js"></script>
     <script src="Style/js/loveAlbum.js"></script>
     <script>
-        // 前台页面 - 仅浏览模式，禁用选择功能
-        // 所有选择功能仅在 admin/loveImgSet.php 后台管理页面可用
+        // 确保在所有脚本加载后初始化
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                if (typeof initLoveAlbum === 'function') {
+                    initLoveAlbum();
+                }
+            }, 100);
+        });
     </script>
 
     <?php

@@ -83,15 +83,17 @@ const LoveAlbumCore = {
 
         const postData = {
             page: LoveAlbumState.currentPage,
-            limit: LoveAlbumState.limit,
+            limit: 12, // 增加每页数量
             album_id: LoveAlbumState.currentAlbumId
         };
 
         $.post('getPhotos.php', postData, function(res) {
+            console.log('📷 照片加载响应:', res);
             LoveAlbumState.isLoading = false;
             $loading.hide();
 
             if (res.code === 200) {
+                console.log('✅ 加载照片数量:', res.data.length);
                 LoveAlbumState.total = res.total;
 
                 res.data.forEach(photo => {
@@ -104,7 +106,7 @@ const LoveAlbumCore = {
                     placeholder: 'Style/img/Loading2.gif',
                     effect: 'show',
                     strictLazyMode: false,
-                    useErrorImagePlaceholder: 'https://img.gejiba.com/images/dbc7f2562e051afc3c39f916689ba5f0.png'
+                    useErrorImagePlaceholder: 'Style/img/error.svg'
                 });
 
                 LoveAlbumState.currentPage++;
@@ -134,18 +136,24 @@ const LoveAlbumCore = {
     },
 
     showPhotos(photos) {
+        console.log('🖼️ 开始渲染照片:', photos.length);
         const $gallery = $('#photoGallery');
         const startIndex = $gallery.children().length;
+        const fragment = document.createDocumentFragment();
 
         photos.forEach(photo => {
-            const photoElement = this.createPhotoElement(photo);
-            $gallery.append(photoElement);
+            const div = document.createElement('div');
+            div.innerHTML = this.createPhotoElement(photo);
+            fragment.appendChild(div.firstElementChild);
         });
+
+        $gallery[0].appendChild(fragment);
+        console.log('✅ DOM 插入完成，当前照片总数:', $gallery.children().length);
 
         const newItems = $gallery.children().slice(startIndex);
         newItems.each(function(index) {
             const $item = $(this);
-            setTimeout(() => $item.addClass('show'), index * 200);
+            setTimeout(() => $item.addClass('show'), index * 50);
         });
 
         if (LoveAlbumState.selectionMode) {

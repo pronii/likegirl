@@ -12,9 +12,19 @@
         'Style/js/loveAlbum/main.js'
     ];
 
+    let loaded = 0;
     modules.forEach(src => {
         const script = document.createElement('script');
         script.src = src;
+        script.onload = function() {
+            loaded++;
+            if (loaded === modules.length) {
+                console.log('✅ 所有模块加载完成');
+                if (typeof initLoveAlbum === 'function') {
+                    initLoveAlbum();
+                }
+            }
+        };
         document.head.appendChild(script);
     });
 })();

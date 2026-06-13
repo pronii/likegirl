@@ -5,7 +5,7 @@ include_once 'admin/connect.php';
 include_once 'admin/Function.php';
 
 $page = isset($_POST['page']) ? intval($_POST['page']) : 1;
-$limit = isset($_POST['limit']) ? intval($_POST['limit']) : 9;
+$limit = isset($_POST['limit']) ? intval($_POST['limit']) : 12;
 $album_id = isset($_POST['album_id']) ? intval($_POST['album_id']) : 0;
 $offset = ($page - 1) * $limit;
 

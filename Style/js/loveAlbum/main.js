@@ -1,7 +1,9 @@
 // 恋爱相册主入口模块
 const LoveAlbum = {
     init() {
+        console.log('🚀 LoveAlbum 初始化开始');
         const $albumGallery = $('#albumGallery');
+        console.log('📦 相册容器:', $albumGallery.length);
         if ($albumGallery.length === 0) return;
 
         LoveAlbumState.reset();
