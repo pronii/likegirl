@@ -37,44 +37,26 @@
         createPlayer() {
             const html = `
                 <div id="musicPlayer" class="minimized">
-                    <button class="minimized-play-btn" id="minimizedPlayBtn">
-                        <i class="mdi mdi-music"></i>
-                    </button>
-                    <div class="music-player-header">
-                        <h5><i class="mdi mdi-music-note"></i> 音乐播放器</h5>
-                        <button class="music-player-toggle" id="togglePlayer">
-                            <i class="mdi mdi-window-minimize"></i>
-                        </button>
-                    </div>
-                    <div class="music-player-content">
-                        <img src="" alt="封面" class="music-cover" id="musicCover">
-                        <div class="music-info">
+                    <div class="music-control-menu show" id="musicControlMenu">
+                        <div class="music-info-display">
                             <div class="music-title" id="musicTitle">暂无音乐</div>
                             <div class="music-artist" id="musicArtist">-</div>
                         </div>
-                        <div class="music-progress">
-                            <div class="progress-bar-container" id="progressBar">
-                                <div class="progress-bar-fill" id="progressFill"></div>
-                            </div>
-                            <div class="progress-time">
-                                <span id="currentTime">0:00</span>
-                                <span id="totalTime">0:00</span>
-                            </div>
+                        <div class="music-control-menu-item" data-action="play">
+                            <i class="mdi mdi-play" id="playIcon"></i>
+                            <span>播放</span>
                         </div>
-                        <div class="music-controls">
-                            <button class="control-btn" id="prevBtn">
-                                <i class="mdi mdi-skip-previous"></i>
-                            </button>
-                            <button class="control-btn play-btn" id="playBtn">
-                                <i class="mdi mdi-play"></i>
-                            </button>
-                            <button class="control-btn" id="nextBtn">
-                                <i class="mdi mdi-skip-next"></i>
-                            </button>
+                        <div class="music-control-menu-item" data-action="prev">
+                            <i class="mdi mdi-skip-previous"></i>
+                            <span>上一首</span>
                         </div>
-                        <div class="volume-control">
-                            <i class="mdi mdi-volume-high"></i>
-                            <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="70">
+                        <div class="music-control-menu-item" data-action="next">
+                            <i class="mdi mdi-skip-next"></i>
+                            <span>下一首</span>
+                        </div>
+                        <div class="music-control-menu-item" data-action="volume">
+                            <i class="mdi mdi-volume-high" id="volumeIcon"></i>
+                            <input type="range" class="volume-slider-mini" id="volumeSlider" min="0" max="100" value="70">
                         </div>
                     </div>
                 </div>
@@ -84,29 +66,31 @@
 
         bindEvents() {
             const player = document.getElementById('musicPlayer');
-            const toggleBtn = document.getElementById('togglePlayer');
-            const minimizedBtn = document.getElementById('minimizedPlayBtn');
-            const playBtn = document.getElementById('playBtn');
-            const prevBtn = document.getElementById('prevBtn');
-            const nextBtn = document.getElementById('nextBtn');
+            const menuItems = document.querySelectorAll('.music-control-menu-item');
             const volumeSlider = document.getElementById('volumeSlider');
-            const progressBar = document.getElementById('progressBar');
 
-            toggleBtn.addEventListener('click', () => this.toggleMinimize());
-            minimizedBtn.addEventListener('click', () => this.toggleMinimize());
-            playBtn.addEventListener('click', () => this.togglePlay());
-            prevBtn.addEventListener('click', () => this.prev());
-            nextBtn.addEventListener('click', () => this.next());
+            // 菜单项点击事件
+            menuItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    const action = item.dataset.action;
+                    switch(action) {
+                        case 'play':
+                            this.togglePlay();
+                            break;
+                        case 'prev':
+                            this.prev();
+                            break;
+                        case 'next':
+                            this.next();
+                            break;
+                    }
+                });
+            });
 
+            // 音量控制
             volumeSlider.addEventListener('input', (e) => {
                 this.volume = e.target.value / 100;
                 this.audio.volume = this.volume;
-            });
-
-            progressBar.addEventListener('click', (e) => {
-                const rect = progressBar.getBoundingClientRect();
-                const percent = (e.clientX - rect.left) / rect.width;
-                this.audio.currentTime = this.audio.duration * percent;
             });
 
             // 音频事件
@@ -123,13 +107,6 @@
 
             document.getElementById('musicTitle').textContent = track.title;
             document.getElementById('musicArtist').textContent = track.artist || '未知艺术家';
-
-            const cover = document.getElementById('musicCover');
-            if (track.cover_url) {
-                cover.src = track.cover_url;
-            } else {
-                cover.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect fill="%23f0f0f0" width="200" height="200"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%23999" font-size="48"%3E♪%3C/text%3E%3C/svg%3E';
-            }
 
             this.audio.src = track.music_url;
         }
@@ -149,15 +126,27 @@
                 console.error('播放失败:', error);
             });
             this.isPlaying = true;
-            document.querySelector('#playBtn i').className = 'mdi mdi-pause';
-            document.querySelector('#minimizedPlayBtn i').className = 'mdi mdi-pause';
+            const playIcon = document.getElementById('playIcon');
+            const playItem = document.querySelector('[data-action="play"] span');
+            if (playIcon) {
+                playIcon.className = 'mdi mdi-pause';
+            }
+            if (playItem) {
+                playItem.textContent = '暂停';
+            }
         }
 
         pause() {
             this.audio.pause();
             this.isPlaying = false;
-            document.querySelector('#playBtn i').className = 'mdi mdi-play';
-            document.querySelector('#minimizedPlayBtn i').className = 'mdi mdi-play';
+            const playIcon = document.getElementById('playIcon');
+            const playItem = document.querySelector('[data-action="play"] span');
+            if (playIcon) {
+                playIcon.className = 'mdi mdi-play';
+            }
+            if (playItem) {
+                playItem.textContent = '播放';
+            }
         }
 
         prev() {
@@ -183,13 +172,11 @@
         }
 
         updateProgress() {
-            const percent = (this.audio.currentTime / this.audio.duration) * 100;
-            document.getElementById('progressFill').style.width = percent + '%';
-            document.getElementById('currentTime').textContent = this.formatTime(this.audio.currentTime);
+            // 简化版，不再需要进度条显示
         }
 
         updateDuration() {
-            document.getElementById('totalTime').textContent = this.formatTime(this.audio.duration);
+            // 简化版，不再需要时长显示
         }
 
         formatTime(seconds) {

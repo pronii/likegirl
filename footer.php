@@ -274,11 +274,14 @@ window.addEventListener('load', function() {
     if (musicBtn) {
         musicBtn.addEventListener('click', function() {
             const player = document.getElementById('musicPlayer');
-            const toggleBtn = document.getElementById('togglePlayer');
 
-            if (player && toggleBtn) {
-                // 切换播放器展开/最小化状态
-                toggleBtn.click();
+            if (player) {
+                // 切换显示/隐藏
+                if (player.classList.contains('minimized')) {
+                    player.classList.remove('minimized');
+                } else {
+                    player.classList.add('minimized');
+                }
             }
         });
     }
