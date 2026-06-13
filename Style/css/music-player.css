@@ -223,7 +223,7 @@
 }
 
 .minimized-play-btn {
-    display: none;
+    display: none !important; /* 隐藏最小化按钮，使用侧边栏按钮代替 */
     width: 100%;
     height: 100%;
     background: none;
@@ -234,9 +234,7 @@
 }
 
 #musicPlayer.minimized .minimized-play-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: none !important; /* 强制隐藏 */
 }
 
 /* 移动端适配 */

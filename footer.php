@@ -274,17 +274,11 @@ window.addEventListener('load', function() {
     if (musicBtn) {
         musicBtn.addEventListener('click', function() {
             const player = document.getElementById('musicPlayer');
-            const minimizedBtn = document.getElementById('minimizedPlayBtn');
+            const toggleBtn = document.getElementById('togglePlayer');
 
-            if (player) {
-                // 如果播放器是最小化状态，点击展开
-                if (player.classList.contains('minimized')) {
-                    minimizedBtn.click();
-                } else {
-                    // 如果已展开，点击最小化
-                    const toggleBtn = document.getElementById('togglePlayer');
-                    if (toggleBtn) toggleBtn.click();
-                }
+            if (player && toggleBtn) {
+                // 切换播放器展开/最小化状态
+                toggleBtn.click();
             }
         });
     }
