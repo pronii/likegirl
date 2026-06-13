@@ -1,5 +1,9 @@
 <?php
+// ===== 缓存优化头 =====
 header('Content-Type: application/json');
+// 短期缓存（5分钟），因为相册内容可能更新
+header('Cache-Control: public, max-age=300');
+header('Expires: ' . gmdate('D, d M Y H:i:s', time() + 300) . ' GMT');
 
 include_once 'admin/connect.php';
 include_once 'admin/Function.php';

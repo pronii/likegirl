@@ -16,8 +16,10 @@ const LoveAlbumCore = {
         LoveAlbumState.currentAlbumId = 0;
 
         $.post('getAlbums.php', function(res) {
+            console.log('📂 相册加载响应:', res);
             $loading.hide();
             if (res.code === 200 && res.data.length > 0) {
+                console.log('✅ 加载相册数量:', res.data.length);
                 res.data.forEach(function(album, index) {
                     const coverImg = album.album_cover || 'Style/img/Loading2.gif';
                     const albumHtml = `
@@ -42,9 +44,11 @@ const LoveAlbumCore = {
                     setTimeout(() => $item.addClass('show'), index * 100);
                 });
             } else {
+                console.warn('⚠️ 无相册数据:', res);
                 $albumGallery.html('<div class="col-12 text-center" style="padding: 40px; color: #999;">暂无相册</div>');
             }
-        }, 'json').fail(function() {
+        }, 'json').fail(function(xhr, status, error) {
+            console.error('❌ 加载相册失败:', status, error, xhr.responseText);
             $loading.hide();
             toastr["error"]("网络错误，无法加载相册列表！", "Like_Girl");
         });
@@ -102,12 +106,18 @@ const LoveAlbumCore = {
 
                 LoveAlbumCore.showPhotos(res.data);
 
-                FunLazy({
-                    placeholder: 'Style/img/Loading2.gif',
-                    effect: 'show',
-                    strictLazyMode: false,
-                    useErrorImagePlaceholder: 'Style/img/error.svg'
-                });
+                // 使用新的懒加载系统（如果存在）
+                if (window.ImageLazyLoader) {
+                    setTimeout(() => ImageLazyLoader.observeImages(), 100);
+                } else {
+                    // 降级到原有的 FunLazy
+                    FunLazy({
+                        placeholder: 'Style/img/Loading2.gif',
+                        effect: 'show',
+                        strictLazyMode: false,
+                        useErrorImagePlaceholder: 'Style/img/error.svg'
+                    });
+                }
 
                 LoveAlbumState.currentPage++;
 
@@ -171,7 +181,7 @@ const LoveAlbumCore = {
                         <input type="checkbox" class="photo-selection-checkbox" data-photo-id="${photoId}">
                         <label class="checkbox-label" for="checkbox-${photoId}"></label>
                     </div>
-                    <img class="spotlight" src="Style/img/Loading2.gif" data-funlazy="${photo.img}" alt="${photo.text}" data-description="${photo.date}" onclick="LoveAlbumCore.forceLoadAllImages(event)">
+                    <img class="spotlight" src="Style/img/Loading2.gif" data-src="${photo.img}" data-funlazy="${photo.img}" alt="${photo.text}" data-description="${photo.date}" data-fallback="Style/img/Loading2.gif" loading="lazy" onclick="LoveAlbumCore.forceLoadAllImages(event)">
 
                     <div class="words" data-tip="${photo.text}" data-tip-position="top">
                         <i>${photo.date}</i>

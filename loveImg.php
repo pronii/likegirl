@@ -43,6 +43,8 @@ include_once 'head.php';
 
     <script src="Style/js/image-optimize.js"></script>
     <script src="Style/js/loveAlbum.js"></script>
+    <!-- ===== 图片懒加载优化脚本 ===== -->
+    <script src="Style/js/loveAlbum/lazyload.js"></script>
 
     <?php
     include_once 'footer.php';

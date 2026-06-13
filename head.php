@@ -145,14 +145,27 @@ $Animation = $text['Animation'];
 
 </script>
 <link rel="shortcut icon" href="/favicon.ico" />
+
+<!-- ===== DNS Prefetch + Preconnect 优化（解决 SSL 握手延迟） ===== -->
+<!-- DNS 预解析：提前解析域名，节省 DNS 查询时间 -->
+<link rel="dns-prefetch" href="//fonts.googleapis.com">
+<link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+<link rel="dns-prefetch" href="//fonts.gstatic.com">
+
+<!-- 预连接：提前建立 TCP + TLS 连接，节省 233ms SSL 握手时间 -->
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+
 <meta name="keywords"
     content="<?php echo $text['title'] ?>,Like Girl 5.2.1-Stable,LGNeUi,情侣小站,开源情侣网站,PHP情侣网站,情侣记录,情侣网站,情侣项目,情侣小窝,Love,LikeGirl,Ki,PHP情侣小站,情侣小站使用教程,情侣小站使用文档">
 <meta name="discription" content="<?php echo $text['writing'] ?> - Like Girl 5.2.1-Stable">
 <meta name="author" content="Ki">
 <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<link href="https://fonts.googleapis.com/css?family=Concert+One|Pacifico" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400&display=swap" rel="stylesheet">
+
+<!-- Google Fonts：合并请求减少 SSL 握手次数 -->
+<link href="https://fonts.googleapis.com/css?family=Concert+One|Pacifico&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../Style/css/leaving.css?LikeGirl=<?php echo $version ?>">
 <link rel="stylesheet" href="../Style/css/index.css?LikeGirl=<?php echo $version ?>">
 <link rel="stylesheet" href="../Style/css/little.css?LikeGirl=<?php echo $version ?>">
