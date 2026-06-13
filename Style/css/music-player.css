@@ -16,6 +16,7 @@
     width: 60px;
     height: 60px;
     border-radius: 50%;
+    display: none !important; /* 完全隐藏最小化状态的播放器 */
 }
 
 .music-player-header {
