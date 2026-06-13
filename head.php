@@ -254,8 +254,47 @@ if ($diy['Pjaxkg'] == "1"):
                 var video = $(this);
                 setupVideoPlayer(video);
             });
-            
-            if (typeof initLoveAlbum === 'function') initLoveAlbum();
+
+            // PJAX 跳转后重新初始化相册模块
+            console.log('🔄 PJAX 跳转完成，检查相册初始化');
+
+            // 检查是否在相册页面
+            if ($('#albumGallery').length > 0) {
+                console.log('📍 检测到相册页面');
+
+                // 定义重试初始化函数
+                function tryInitAlbum(attempts) {
+                    attempts = attempts || 0;
+                    console.log(`🔄 尝试初始化相册 (第 ${attempts + 1} 次)`);
+
+                    if (typeof initLoveAlbum === 'function') {
+                        console.log('✅ initLoveAlbum 已就绪，开始初始化');
+                        try {
+                            initLoveAlbum();
+                        } catch (e) {
+                            console.error('❌ 初始化失败:', e);
+                            $('#loading').hide();
+                            $('#albumGallery').html('<div class="col-12 text-center" style="padding: 40px; color: #dc3545;">初始化失败: ' + e.message + '<br><button class="btn btn-primary mt-3" onclick="location.reload()">刷新页面</button></div>');
+                        }
+                    } else if (attempts < 10) {
+                        // 模块还未加载，等待后重试
+                        console.log(`⏳ initLoveAlbum 未就绪，${200}ms 后重试`);
+                        setTimeout(function() {
+                            tryInitAlbum(attempts + 1);
+                        }, 200);
+                    } else {
+                        // 超过重试次数
+                        console.error('❌ 模块加载超时');
+                        $('#loading').hide();
+                        $('#albumGallery').html('<div class="col-12 text-center" style="padding: 40px; color: #dc3545;">模块加载超时<br><button class="btn btn-primary mt-3" onclick="location.reload()">刷新页面</button></div>');
+                    }
+                }
+
+                // 开始尝试初始化
+                tryInitAlbum();
+            } else {
+                console.log('⏭ 非相册页面，跳过初始化');
+            }
 
             initScrollButton('#MessageBtn', '#MessageArea', 800, 800);
 
