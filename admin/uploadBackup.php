@@ -77,13 +77,13 @@ if (!$foundKeyword) {
     die(json_encode(['success' => false, 'message' => '文件内容不是有效的SQL文件']));
 }
 
-// 生成标准格式文件名
-$newFilename = 'backup_' . date('Y-m-d_H-i-s') . '.sql';
+// 生成标准格式文件名（添加唯一标识符防止冲突）
+$newFilename = 'backup_' . date('Y-m-d_H-i-s') . '_' . substr(md5(uniqid(mt_rand(), true)), 0, 8) . '.sql';
 
 // 备份目录
 $backupDir = __DIR__ . '/../backups';
 if (!is_dir($backupDir)) {
-    mkdir($backupDir, 0755, true);
+    mkdir($backupDir, 0750, true);  // 修复目录权限为 0750
 }
 
 $backupDirReal = realpath($backupDir);
@@ -94,18 +94,24 @@ if ($backupDirReal === false) {
 // 目标路径
 $targetPath = $backupDir . '/' . $newFilename;
 
+// 先验证路径是否安全（在移动文件之前）
+$expectedPath = $backupDirReal . DIRECTORY_SEPARATOR . $newFilename;
+if (!file_exists($backupDirReal . DIRECTORY_SEPARATOR)) {
+    die(json_encode(['success' => false, 'message' => '路径验证失败']));
+}
+
 // 移动上传文件
 if (!move_uploaded_file($tmpPath, $targetPath)) {
     die(json_encode(['success' => false, 'message' => '文件保存失败']));
 }
 
-// 路径规范化验证：确保文件在备份目录内
+// 设置文件权限
+chmod($targetPath, 0640);
+
+// 二次验证：确保文件在备份目录内
 $targetPathReal = realpath($targetPath);
 if ($targetPathReal === false || strpos($targetPathReal, $backupDirReal) !== 0) {
-    // 安全问题，删除文件
-    if (file_exists($targetPath)) {
-        unlink($targetPath);
-    }
+    unlink($targetPath);
     die(json_encode(['success' => false, 'message' => '路径验证失败']));
 }
 
