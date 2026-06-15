@@ -94,10 +94,9 @@ if ($backupDirReal === false) {
 // 目标路径
 $targetPath = $backupDir . '/' . $newFilename;
 
-// 先验证路径是否安全（在移动文件之前）
-$expectedPath = $backupDirReal . DIRECTORY_SEPARATOR . $newFilename;
-if (!file_exists($backupDirReal . DIRECTORY_SEPARATOR)) {
-    die(json_encode(['success' => false, 'message' => '路径验证失败']));
+// 先验证文件名不包含路径遍历字符（在移动文件之前）
+if (basename($newFilename) !== $newFilename) {
+    die(json_encode(['success' => false, 'message' => '文件名不合法']));
 }
 
 // 移动上传文件
