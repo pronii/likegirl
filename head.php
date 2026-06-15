@@ -20,16 +20,23 @@ include ("ipjc.php");
 include_once ("ip.php");
 include_once 'admin/connect.php';
 include_once 'admin/Function.php';
+include_once 'admin/SimpleCache.php';
 
-$sql = "select * from text";
-$result = mysqli_query($connect, $sql);
-$text = mysqli_fetch_array($result);
+// 使用缓存优化数据库查询（缓存5分钟）
+$text = SimpleCache::remember('site_text', 300, function() use ($connect) {
+    $sql = "select * from text";
+    $result = mysqli_query($connect, $sql);
+    return mysqli_fetch_array($result);
+});
 
-$sql = "select * from diySet";
-$result = mysqli_query($connect, $sql);
-if (mysqli_num_rows($result)) {
-    $diy = mysqli_fetch_array($result);
-}
+$diy = SimpleCache::remember('site_diy', 300, function() use ($connect) {
+    $sql = "select * from diySet";
+    $result = mysqli_query($connect, $sql);
+    if (mysqli_num_rows($result)) {
+        return mysqli_fetch_array($result);
+    }
+    return null;
+});
 
 $copy = $text['Copyright'];
 $icp = $text['icp'];
@@ -182,6 +189,8 @@ $Animation = $text['Animation'];
 <script src="../Botui/botui.min.js"></script>
 <script src="../Style/js/vue.min.js"></script>
 <script src="../Style/jquery/jquery.min.js"></script>
+<!-- 全局配置文件 -->
+<script src="../Style/js/config.js?LikeGirl=<?php echo $version ?>"></script>
 <script src="../Style/js/jquery.pjax.js" type="text/javascript"></script>
 <script src="../Style/pagelir/spotlight.bundle.js"></script>
 <script src="../Style/js/funlazy.min.js"></script>

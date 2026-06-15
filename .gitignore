@@ -6,6 +6,7 @@ ip.txt
 *.backup
 *.old
 *.tmp
+backups/
 
 # 数据库迁移测试文件
 migration_*.sql
@@ -15,3 +16,13 @@ fix_*.sql
 *~
 .DS_Store
 Thumbs.db
+
+# 日志文件
+*.log
+error.log
+debug.log
+
+# IDE配置
+.vscode/
+.idea/
+*.code-workspace
