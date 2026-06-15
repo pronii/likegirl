@@ -54,6 +54,13 @@ include_once 'Nav.php';
 
 <script src="../Style/toastr/toastr.min.js"></script>
 <script>
+// HTML转义函数
+function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, function(char) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char];
+    });
+}
+
 function loadBackups() {
     $.get('backupList.php', function(res) {
         if (res.success) {
@@ -62,19 +69,20 @@ function loadBackups() {
                 html = '<tr><td colspan="5" class="text-center">暂无备份</td></tr>';
             } else {
                 res.files.forEach(file => {
+                    const safeName = escapeHtml(file.name);
                     html += `<tr>
-                        <td><input type="checkbox" class="backup-checkbox" value="${file.name}" onchange="updateBatchButton()"></td>
-                        <td>${file.name}</td>
+                        <td><input type="checkbox" class="backup-checkbox" value="${safeName}" onchange="updateBatchButton()"></td>
+                        <td>${safeName}</td>
                         <td>${(file.size / 1024).toFixed(2)} KB</td>
                         <td>${file.date}</td>
                         <td>
-                            <a href="javascript:void(0)" onclick="restoreBackup('${file.name}')" class="action-icon">
+                            <a href="javascript:void(0)" onclick="restoreBackup('${safeName}')" class="action-icon">
                                 <i class="mdi mdi-database-import"></i> 恢复
                             </a>
-                            <a href="downloadBackup.php?filename=${file.name}" class="action-icon ml-2">
+                            <a href="downloadBackup.php?filename=${encodeURIComponent(file.name)}" class="action-icon ml-2">
                                 <i class="mdi mdi-download"></i> 下载
                             </a>
-                            <a href="javascript:void(0)" onclick="deleteBackup('${file.name}')" class="action-icon ml-2 text-danger">
+                            <a href="javascript:void(0)" onclick="deleteBackup('${safeName}')" class="action-icon ml-2 text-danger">
                                 <i class="mdi mdi-delete"></i> 删除
                             </a>
                         </td>
@@ -83,8 +91,13 @@ function loadBackups() {
             }
             $('#backupList').html(html);
             updateBatchButton();
+        } else {
+            toastr.error(res.message || '加载失败');
         }
-    }, 'json');
+    }, 'json').fail(function() {
+        toastr.error('网络错误，请稍后重试');
+        $('#backupList').html('<tr><td colspan="5" class="text-center text-danger">加载失败</td></tr>');
+    });
 }
 
 function createBackup() {
