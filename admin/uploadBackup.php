@@ -117,9 +117,12 @@ if ($targetPathReal === false || strpos($targetPathReal, $backupDirReal) !== 0) 
 // 记录操作日志
 $logContent = '管理员上传备份文件: ' . $newFilename . ' (' . round($fileSize / 1024 / 1024, 2) . ' MB)';
 $logTime = date('Y-m-d H:i:s');
-$logStmt = $connect->prepare("INSERT INTO warning (Warr_content, Warr_time) VALUES (?, ?)");
+$logIp = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+
+// 使用warning表的实际字段: ip, gsd, time, file
+$logStmt = $connect->prepare("INSERT INTO warning (ip, gsd, time, file) VALUES (?, ?, ?, ?)");
 if ($logStmt) {
-    $logStmt->bind_param("ss", $logContent, $logTime);
+    $logStmt->bind_param("ssss", $logIp, $logContent, $logTime, $newFilename);
     if (!$logStmt->execute()) {
         error_log("Failed to log backup upload: " . $logStmt->error);
     }

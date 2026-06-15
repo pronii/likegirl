@@ -81,9 +81,13 @@ if ($deleted > 0) {
     }
 
     $logTime = date('Y-m-d H:i:s');
-    $logStmt = $connect->prepare("INSERT INTO warning (Warr_content, Warr_time) VALUES (?, ?)");
+    $logIp = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+
+    // 使用warning表的实际字段: ip, gsd, time, file
+    $logStmt = $connect->prepare("INSERT INTO warning (ip, gsd, time, file) VALUES (?, ?, ?, ?)");
     if ($logStmt) {
-        $logStmt->bind_param("ss", $logContent, $logTime);
+        $fileInfo = ($deleted == 1 && count($filenames) == 1) ? $deletedFiles[0] : "{$deleted}个文件";
+        $logStmt->bind_param("ssss", $logIp, $logContent, $logTime, $fileInfo);
         if (!$logStmt->execute()) {
             error_log("Failed to log backup deletion: " . $logStmt->error);
         }
