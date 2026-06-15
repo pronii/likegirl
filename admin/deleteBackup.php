@@ -82,9 +82,15 @@ if ($deleted > 0) {
 
     $logTime = date('Y-m-d H:i:s');
     $logStmt = $connect->prepare("INSERT INTO warning (Warr_content, Warr_time) VALUES (?, ?)");
-    $logStmt->bind_param("ss", $logContent, $logTime);
-    $logStmt->execute();
-    $logStmt->close();
+    if ($logStmt) {
+        $logStmt->bind_param("ss", $logContent, $logTime);
+        if (!$logStmt->execute()) {
+            error_log("Failed to log backup deletion: " . $logStmt->error);
+        }
+        $logStmt->close();
+    } else {
+        error_log("Failed to prepare log statement: " . $connect->error);
+    }
 }
 
 // 返回结果
