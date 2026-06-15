@@ -98,3 +98,69 @@ function get_ip_city_New($ip)
     $data = json_decode($location, true);
     return $data['data'][0];
 }
+
+/**
+ * 格式化视频时长
+ * @param int|null $seconds 秒数
+ * @return string 格式化后的时长字符串 (HH:MM:SS 或 MM:SS)
+ */
+function formatDuration($seconds) {
+    if ($seconds === null || $seconds === '') {
+        return '--';
+    }
+
+    $seconds = intval($seconds);
+    $hours = floor($seconds / 3600);
+    $minutes = floor(($seconds % 3600) / 60);
+    $secs = $seconds % 60;
+
+    if ($hours > 0) {
+        return sprintf('%02d:%02d:%02d', $hours, $minutes, $secs);
+    } else {
+        return sprintf('%02d:%02d', $minutes, $secs);
+    }
+}
+
+/**
+ * 格式化文件大小
+ * @param int|null $bytes 字节数
+ * @return string 格式化后的文件大小 (B/KB/MB/GB)
+ */
+function formatFileSize($bytes) {
+    if ($bytes === null || $bytes === '') {
+        return '--';
+    }
+
+    $bytes = floatval($bytes);
+    $units = ['B', 'KB', 'MB', 'GB'];
+    $i = 0;
+
+    while ($bytes >= 1024 && $i < 3) {
+        $bytes /= 1024;
+        $i++;
+    }
+
+    return round($bytes, 2) . ' ' . $units[$i];
+}
+
+/**
+ * 验证视频文件类型
+ * @param string $filename 文件名
+ * @param string $mimeType MIME类型
+ * @return bool 是否为允许的视频类型
+ */
+function isValidVideoFile($filename, $mimeType) {
+    $allowedExtensions = ['mp4', 'avi', 'mov', 'webm', 'mkv'];
+    $allowedMimeTypes = [
+        'video/mp4',
+        'video/x-msvideo',
+        'video/quicktime',
+        'video/webm',
+        'video/x-matroska'
+    ];
+
+    $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+
+    return in_array($extension, $allowedExtensions) &&
+           in_array($mimeType, $allowedMimeTypes);
+}
