@@ -70,10 +70,14 @@ function loadBackups() {
             } else {
                 res.files.forEach(file => {
                     const safeName = escapeHtml(file.name);
+                    const sizeKB = file.size / 1024;
+                    const sizeDisplay = sizeKB >= 1024
+                        ? (sizeKB / 1024).toFixed(2) + ' MB'
+                        : sizeKB.toFixed(2) + ' KB';
                     html += `<tr>
                         <td><input type="checkbox" class="backup-checkbox" value="${safeName}" onchange="updateBatchButton()"></td>
                         <td>${safeName}</td>
-                        <td>${(file.size / 1024).toFixed(2)} KB</td>
+                        <td>${sizeDisplay}</td>
                         <td>${file.date}</td>
                         <td>
                             <a href="javascript:void(0)" onclick="restoreBackup('${safeName}')" class="action-icon">

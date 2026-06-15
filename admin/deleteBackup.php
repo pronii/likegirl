@@ -40,8 +40,8 @@ $deletedFiles = [];
 
 // 遍历删除文件
 foreach ($filenames as $filename) {
-    // 文件名白名单验证：只允许 backup_YYYY-MM-DD_HH-ii-ss.sql 格式
-    if (!preg_match('/^backup_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}\.sql$/', $filename)) {
+    // 文件名白名单验证：backup_YYYY-MM-DD_HH-ii-ss.sql 或 backup_YYYY-MM-DD_HH-ii-ss_XXXXXXXX.sql 格式
+    if (!preg_match('/^backup_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}(_[a-f0-9]{8})?\.sql$/', $filename)) {
         $failed++;
         continue;
     }
