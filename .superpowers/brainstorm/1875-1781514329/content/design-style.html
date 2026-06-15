@@ -1,0 +1,102 @@
+<h2>选择你喜欢的整体设计风格</h2>
+<p class="subtitle">这将决定配色、布局和交互的整体方向</p>
+
+<div class="cards">
+  <div class="card" data-choice="modern" onclick="toggleSelect(this)">
+    <div class="card-image" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); height: 200px; display: flex; align-items: center; justify-content: center; color: white; font-size: 48px; border-radius: 12px 12px 0 0;">
+      <div style="text-align: center;">
+        <div style="font-size: 64px; margin-bottom: 10px;">✨</div>
+        <div style="font-size: 20px; font-weight: 600;">Modern</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>现代简约风</h3>
+      <p style="color: #666; line-height: 1.6;">渐变色彩、大圆角、流动感的设计。适合情侣网站，浪漫而时尚。</p>
+      <div class="pros-cons" style="margin-top: 15px; font-size: 14px;">
+        <div class="pros" style="margin-bottom: 10px;">
+          <strong style="color: #10b981;">✓ 优点：</strong>
+          <span style="color: #666;">视觉冲击力强、年轻化、符合当前审美趋势</span>
+        </div>
+        <div class="cons">
+          <strong style="color: #ef4444;">− 考虑：</strong>
+          <span style="color: #666;">需要较多的CSS3特性支持</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-choice="clean" onclick="toggleSelect(this)">
+    <div class="card-image" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); height: 200px; display: flex; align-items: center; justify-content: center; color: #2d3748; font-size: 48px; border-radius: 12px 12px 0 0;">
+      <div style="text-align: center;">
+        <div style="font-size: 64px; margin-bottom: 10px;">🎨</div>
+        <div style="font-size: 20px; font-weight: 600;">Clean</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>清新素雅风</h3>
+      <p style="color: #666; line-height: 1.6;">浅色调、扁平化设计、大留白。简洁干净，不会视觉疲劳。</p>
+      <div class="pros-cons" style="margin-top: 15px; font-size: 14px;">
+        <div class="pros" style="margin-bottom: 10px;">
+          <strong style="color: #10b981;">✓ 优点：</strong>
+          <span style="color: #666;">舒适易读、性能优秀、易于维护</span>
+        </div>
+        <div class="cons">
+          <strong style="color: #ef4444;">− 考虑：</strong>
+          <span style="color: #666;">可能显得过于朴素</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-choice="romantic" onclick="toggleSelect(this)">
+    <div class="card-image" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); height: 200px; display: flex; align-items: center; justify-content: center; color: white; font-size: 48px; border-radius: 12px 12px 0 0;">
+      <div style="text-align: center;">
+        <div style="font-size: 64px; margin-bottom: 10px;">💕</div>
+        <div style="font-size: 20px; font-weight: 600;">Romantic</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>浪漫温馨风</h3>
+      <p style="color: #666; line-height: 1.6;">粉色系、柔和过渡、心形元素。专为情侣定制，温馨浪漫。</p>
+      <div class="pros-cons" style="margin-top: 15px; font-size: 14px;">
+        <div class="pros" style="margin-bottom: 10px;">
+          <strong style="color: #10b981;">✓ 优点：</strong>
+          <span style="color: #666;">主题鲜明、情感表达强烈、记忆点深刻</span>
+        </div>
+        <div class="cons">
+          <strong style="color: #ef4444;">− 考虑：</strong>
+          <span style="color: #666;">部分用户可能觉得过于甜腻</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-choice="elegant" onclick="toggleSelect(this)">
+    <div class="card-image" style="background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); height: 200px; display: flex; align-items: center; justify-content: center; color: white; font-size: 48px; border-radius: 12px 12px 0 0;">
+      <div style="text-align: center;">
+        <div style="font-size: 64px; margin-bottom: 10px;">👔</div>
+        <div style="font-size: 20px; font-weight: 600;">Elegant</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>优雅专业风</h3>
+      <p style="color: #666; line-height: 1.6;">深色调、细线条、精致排版。低调奢华，适合成熟用户。</p>
+      <div class="pros-cons" style="margin-top: 15px; font-size: 14px;">
+        <div class="pros" style="margin-bottom: 10px;">
+          <strong style="color: #10b981;">✓ 优点：</strong>
+          <span style="color: #666;">质感高级、耐看、适合长期使用</span>
+        </div>
+        <div class="cons">
+          <strong style="color: #ef4444;">− 考虑：</strong>
+          <span style="color: #666;">可能缺少活泼感</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="margin-top: 40px; padding: 20px; background: #f8fafc; border-radius: 8px; border-left: 4px solid #667eea;">
+  <p style="margin: 0; color: #475569; line-height: 1.6;">
+    <strong>💡 提示：</strong>点击任意卡片选择你喜欢的风格，选择后我会展示该风格的具体配色方案和布局设计。你也可以在终端告诉我更多想法。
+  </p>
+</div>
