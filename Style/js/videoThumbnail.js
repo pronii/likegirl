@@ -125,6 +125,35 @@
             }
 
             return size.toFixed(2) + ' ' + units[unitIndex];
+        },
+
+        /**
+         * 简化的提取方法（别名）
+         * 回调格式统一为：callback(data)
+         * data: { error: string|null, thumbnail: string, duration: number, width: number, height: number }
+         */
+        extract: function(videoFile, callback) {
+            this.extractVideoThumbnail(videoFile, function(error, result) {
+                if (error) {
+                    callback({
+                        error: error.message || String(error),
+                        thumbnail: null,
+                        duration: null,
+                        width: null,
+                        height: null
+                    });
+                } else {
+                    callback({
+                        error: null,
+                        thumbnail: result.thumbnail,
+                        duration: Math.round(result.duration), // 四舍五入到整数秒
+                        width: result.width,
+                        height: result.height,
+                        size: result.fileSize,
+                        fileName: result.fileName
+                    });
+                }
+            });
         }
     };
 
