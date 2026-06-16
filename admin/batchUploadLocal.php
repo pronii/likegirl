@@ -347,13 +347,44 @@ document.getElementById('fileInput').addEventListener('change', async function(e
     const files = Array.from(e.target.files);
     if (files.length === 0) return;
 
-    // 显示处理提示
+    // 显示详细的处理提示
     const container = document.getElementById('fileList');
-    container.innerHTML = '<div class="text-center text-muted py-4"><i class="mdi mdi-loading mdi-spin mr-2"></i>正在处理文件...</div>';
+    container.innerHTML = `
+        <div class="text-center py-4" id="processingStatus">
+            <div class="mb-3">
+                <i class="mdi mdi-video-image mdi-spin" style="font-size: 48px; color: #667eea;"></i>
+            </div>
+            <h5 class="mb-3">正在处理文件</h5>
+            <div class="progress mb-3" style="height: 30px;">
+                <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
+                     id="processProgressBar"
+                     role="progressbar"
+                     style="width: 0%; font-size: 16px; line-height: 30px;">
+                    0%
+                </div>
+            </div>
+            <div class="text-muted">
+                <span id="processCurrentFile">准备中...</span>
+                <br>
+                <small>已处理: <strong id="processedCount">0</strong> / <strong id="totalCount">0</strong></small>
+            </div>
+        </div>
+    `;
     document.getElementById('fileListContainer').style.display = 'block';
 
+    // 设置总数
+    document.getElementById('totalCount').textContent = files.length;
+
     // 添加文件到列表
-    for (const file of files) {
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+
+        // 更新当前处理的文件名
+        const currentFileEl = document.getElementById('processCurrentFile');
+        if (currentFileEl) {
+            currentFileEl.innerHTML = `正在处理: <strong>${file.name}</strong>`;
+        }
+
         const fileType = file.type.startsWith('video/') ? 'video' : 'image';
 
         // 验证文件类型
@@ -394,6 +425,11 @@ document.getElementById('fileInput').addEventListener('change', async function(e
 
         // 如果是视频，提取缩略图和时长
         if (fileType === 'video') {
+            // 更新状态：正在提取
+            if (currentFileEl) {
+                currentFileEl.innerHTML = `正在提取视频缩略图: <strong>${file.name}</strong>`;
+            }
+
             await new Promise((resolve) => {
                 VideoThumbnail.extract(file, function(data) {
                     if (data.error) {
@@ -409,10 +445,42 @@ document.getElementById('fileInput').addEventListener('change', async function(e
         }
 
         selectedFiles.push(fileItem);
+
+        // 更新进度
+        const processed = i + 1;
+        const percent = Math.round((processed / files.length) * 100);
+        const progressBar = document.getElementById('processProgressBar');
+        const processedCountEl = document.getElementById('processedCount');
+
+        if (progressBar) {
+            progressBar.style.width = percent + '%';
+            progressBar.textContent = percent + '%';
+        }
+        if (processedCountEl) {
+            processedCountEl.textContent = processed;
+        }
     }
 
-    renderFileList();
-    updateUI();
+    // 处理完成，显示短暂的完成提示
+    const processingStatus = document.getElementById('processingStatus');
+    if (processingStatus) {
+        processingStatus.innerHTML = `
+            <div class="text-center py-3">
+                <i class="mdi mdi-check-circle" style="font-size: 48px; color: #28a745;"></i>
+                <h5 class="mt-2 mb-0">文件处理完成！</h5>
+                <small class="text-muted">共处理 ${files.length} 个文件</small>
+            </div>
+        `;
+
+        // 1秒后显示文件列表
+        setTimeout(() => {
+            renderFileList();
+            updateUI();
+        }, 1000);
+    } else {
+        renderFileList();
+        updateUI();
+    }
 });
 
 // 渲染文件列表
