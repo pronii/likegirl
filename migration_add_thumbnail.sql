@@ -1,2 +1,0 @@
--- 添加缩略图字段
-ALTER TABLE loveImg ADD COLUMN thumbUrl VARCHAR(255) DEFAULT NULL COMMENT '缩略图URL' AFTER imgUrl;
