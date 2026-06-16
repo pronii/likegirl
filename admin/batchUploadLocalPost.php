@@ -116,9 +116,20 @@ if ($isBatchUpload) {
             $videoPath = $uploadDirs['video'] . $newFileName;
 
             // 保存视频文件
+            // 检查源文件是否存在
+            if (!file_exists($tmpPath)) {
+                $errors[] = "文件 {$fileName}: 临时文件不存在";
+                continue;
+            }
+
+            // 检查目标目录是否可写
+            if (!is_writable($uploadDirs['video'])) {
+                $errors[] = "文件 {$fileName}: 目标目录不可写 ({$uploadDirs['video']})";
+                continue;
+            }
+
             if (!move_uploaded_file($tmpPath, $videoPath)) {
-                $errorMsg = error_get_last();
-                $errors[] = "文件 {$fileName}: 视频保存失败 (源: $tmpPath, 目标: $videoPath, 错误: " . ($errorMsg['message'] ?? 'unknown') . ")";
+                $errors[] = "文件 {$fileName}: 视频保存失败 (目标: $videoPath)";
                 continue;
             }
 
@@ -265,9 +276,20 @@ if ($isBatchUpload) {
             $thumbPath = $uploadDirs['thumb'] . $newFileName;
 
             // 移动文件
+            // 检查源文件是否存在
+            if (!file_exists($tmpPath)) {
+                $errors[] = "文件 {$fileName}: 临时文件不存在";
+                continue;
+            }
+
+            // 检查目标目录是否可写
+            if (!is_writable($uploadDirs['image'])) {
+                $errors[] = "文件 {$fileName}: 目标目录不可写 ({$uploadDirs['image']})";
+                continue;
+            }
+
             if (!move_uploaded_file($tmpPath, $imagePath)) {
-                $errorMsg = error_get_last();
-                $errors[] = "文件 {$fileName}: 图片保存失败 (源: $tmpPath, 目标: $imagePath, 错误: " . ($errorMsg['message'] ?? 'unknown') . ")";
+                $errors[] = "文件 {$fileName}: 图片保存失败 (目标: $imagePath)";
                 continue;
             }
 
