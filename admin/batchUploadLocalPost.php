@@ -1,4 +1,9 @@
 <?php
+// 开启错误报告（调试用）
+error_reporting(E_ALL);
+ini_set('display_errors', 0); // 不直接显示，避免破坏JSON
+ini_set('log_errors', 1);
+
 session_start();
 header('Content-Type: application/json; charset=utf-8');
 
@@ -107,7 +112,8 @@ if ($isBatchUpload) {
 
             // 保存视频文件
             if (!move_uploaded_file($tmpPath, $videoPath)) {
-                $errors[] = "文件 {$fileName}: 视频保存失败";
+                $errorMsg = error_get_last();
+                $errors[] = "文件 {$fileName}: 视频保存失败 (源: $tmpPath, 目标: $videoPath, 错误: " . ($errorMsg['message'] ?? 'unknown') . ")";
                 continue;
             }
 
@@ -255,7 +261,8 @@ if ($isBatchUpload) {
 
             // 移动文件
             if (!move_uploaded_file($tmpPath, $imagePath)) {
-                $errors[] = "文件 {$fileName}: 图片保存失败";
+                $errorMsg = error_get_last();
+                $errors[] = "文件 {$fileName}: 图片保存失败 (源: $tmpPath, 目标: $imagePath, 错误: " . ($errorMsg['message'] ?? 'unknown') . ")";
                 continue;
             }
 
