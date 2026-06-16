@@ -49,12 +49,13 @@ if ($isBatchUpload) {
     $errors = [];
     $totalFiles = count($_FILES['files']['name']);
 
-    // 创建必要的目录
+    // 创建必要的目录（使用 realpath 确保路径正确）
+    $baseDir = realpath(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR;
     $uploadDirs = [
-        'image' => dirname(__DIR__) . '/uploads/images/',
-        'thumb' => dirname(__DIR__) . '/uploads/thumbs/',
-        'video' => dirname(__DIR__) . '/uploads/videos/',
-        'video_thumb' => dirname(__DIR__) . '/uploads/video_thumbs/'
+        'image' => $baseDir . 'images' . DIRECTORY_SEPARATOR,
+        'thumb' => $baseDir . 'thumbs' . DIRECTORY_SEPARATOR,
+        'video' => $baseDir . 'videos' . DIRECTORY_SEPARATOR,
+        'video_thumb' => $baseDir . 'video_thumbs' . DIRECTORY_SEPARATOR
     ];
 
     foreach ($uploadDirs as $dir) {
