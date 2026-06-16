@@ -1,6 +1,7 @@
 <?php
 session_start();
 include_once 'Nav.php';
+include_once 'Function.php';
 
 // 确保使用 UTF-8 编码
 mysqli_set_charset($connect, "utf8mb4");
@@ -14,6 +15,7 @@ $albumRes = mysqli_query($connect, "SELECT id, album_name FROM love_album ORDER 
 ?>
 
 <link href="assets/css/selection-manager.css" rel="stylesheet" type="text/css"/>
+<link rel="stylesheet" href="../Style/css/video.css">
 
 <style>
     .img-thumbnail {
@@ -48,10 +50,10 @@ $albumRes = mysqli_query($connect, "SELECT id, album_name FROM love_album ORDER 
     .row-selected td {
         background-color: #e3f2fd !important;
     }
-    #albumFilter {
+    #albumFilter, #typeFilter {
         transition: border-color 0.3s ease;
     }
-    #albumFilter:focus {
+    #albumFilter:focus, #typeFilter:focus {
         border-color: #667eea;
         box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
     }
@@ -68,6 +70,39 @@ $albumRes = mysqli_query($connect, "SELECT id, album_name FROM love_album ORDER 
     }
     tbody tr {
         cursor: pointer;
+    }
+    .video-preview-thumb {
+        position: relative;
+        width: 120px;
+        height: 90px;
+        display: inline-block;
+        cursor: pointer;
+    }
+    .video-preview-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .video-preview-thumb .mdi-play-circle {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 32px;
+        color: white;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        pointer-events: none;
+    }
+    .video-preview-thumb .duration-badge {
+        position: absolute;
+        bottom: 4px;
+        right: 4px;
+        background: rgba(0,0,0,0.7);
+        color: white;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 11px;
+        pointer-events: none;
     }
 
     @media (max-width: 768px) {
@@ -103,7 +138,7 @@ $albumRes = mysqli_query($connect, "SELECT id, album_name FROM love_album ORDER 
         #basic-datatable td:nth-child(2) {
             display: none;
         }
-        #basic-datatable td:nth-child(4) {
+        #basic-datatable td:nth-child(5) {
             max-width: 100px;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -195,6 +230,16 @@ $albumRes = mysqli_query($connect, "SELECT id, album_name FROM love_album ORDER 
                     <span class="ml-2 text-muted" id="filterInfo"></span>
                 </div>
 
+                <div class="mb-3">
+                    <label class="mr-2"><i class="mdi mdi-filter-outline"></i> 按类型筛选</label>
+                    <select id="typeFilter" class="form-control form-control-sm"
+                            style="display:inline-block;width:auto;min-width:150px;">
+                        <option value="">全部类型</option>
+                        <option value="image">仅图片</option>
+                        <option value="video">仅视频</option>
+                    </select>
+                </div>
+
                 <div id="batchActionPanel" class="floating-batch-bar" style="display: none;">
                     <div class="batch-bar-content">
                         <div class="batch-info">
@@ -224,8 +269,9 @@ $albumRes = mysqli_query($connect, "SELECT id, album_name FROM love_album ORDER 
                     <tr>
                         <th width="40px"><input type="checkbox" id="selectAll"></th>
                         <th>序号</th>
-                        <th>图片预览</th>
-                        <th>图片描述</th>
+                        <th>预览</th>
+                        <th>类型</th>
+                        <th>描述</th>
                         <th>所属相册</th>
                         <th>日期</th>
                         <th style="width:150px;">操作</th>
@@ -238,23 +284,56 @@ $albumRes = mysqli_query($connect, "SELECT id, album_name FROM love_album ORDER 
                         $SerialNumber++;
                         $albumName = $list['album_name'] ? $list['album_name'] : '未分类';
                         $albumClass = $list['album_name'] ? 'album-badge' : 'album-badge album-none';
+                        $isVideo = ($list['media_type'] ?? 'image') === 'video';
                         ?>
                         <tr id="row-<?php echo $list['id']; ?>"
                             data-photo-id="<?php echo $list['id']; ?>"
                             data-album-id="<?php echo (int)($list['album_id'] ?? 0); ?>"
-                            data-album-name="<?php echo htmlspecialchars($albumName, ENT_QUOTES, 'UTF-8'); ?>">
+                            data-album-name="<?php echo htmlspecialchars($albumName, ENT_QUOTES, 'UTF-8'); ?>"
+                            data-type="<?php echo $list['media_type'] ?? 'image'; ?>">
                             <td>
                                 <input type="checkbox" class="photo-checkbox" value="<?php echo $list['id']; ?>" data-checkbox="photo">
                             </td>
                             <td>
                                 <div class="SerialNumber"><?php echo $SerialNumber ?></div>
                             </td>
+
+                            <!-- 预览列 -->
                             <td>
-                                <img src="<?php echo $list['imgUrl'] ?>"
-                                     class="img-thumbnail"
-                                     alt="预览"
-                                     onclick="window.open('<?php echo $list['imgUrl'] ?>', '_blank')">
+                                <?php if ($isVideo): ?>
+                                    <div class="video-preview-thumb"
+                                         onclick="previewVideo('<?php echo $list['imgUrl']; ?>', '<?php echo htmlspecialchars($list['imgText'], ENT_QUOTES); ?>')">
+                                        <img src="<?php echo $list['thumbnail_url'] ?: $list['imgUrl']; ?>"
+                                             class="img-thumbnail"
+                                             alt="视频预览">
+                                        <i class="mdi mdi-play-circle"></i>
+                                        <?php if (!empty($list['video_duration'])): ?>
+                                        <span class="duration-badge">
+                                            <?php echo formatDuration($list['video_duration']); ?>
+                                        </span>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php else: ?>
+                                    <img src="<?php echo $list['imgUrl'] ?>"
+                                         class="img-thumbnail"
+                                         alt="预览"
+                                         onclick="window.open('<?php echo $list['imgUrl'] ?>', '_blank')">
+                                <?php endif; ?>
                             </td>
+
+                            <!-- 类型列 -->
+                            <td>
+                                <?php if ($isVideo): ?>
+                                    <span class="badge badge-primary">
+                                        <i class="mdi mdi-video"></i> 视频
+                                    </span>
+                                <?php else: ?>
+                                    <span class="badge badge-info">
+                                        <i class="mdi mdi-image"></i> 图片
+                                    </span>
+                                <?php endif; ?>
+                            </td>
+
                             <td><?php echo $list['imgText'] ?></td>
                             <td>
                                 <span class="<?php echo $albumClass ?>">
@@ -535,7 +614,7 @@ function batchTransfer() {
                     const finalAlbumName = res.album_name || albumName;
                     ids.forEach(function(id) {
                         const row = $('#row-' + id);
-                        const albumCell = row.find('td:eq(4)');
+                        const albumCell = row.find('td:eq(5)');
                         albumCell.html(`<span class="album-badge"><i class="mdi mdi-folder"></i> ${escapeHtml(finalAlbumName)}</span>`);
 
                         // 更新data属性
@@ -580,7 +659,7 @@ $(document).on('click', '[data-action="preview"]', function() {
     ids.forEach(function(id) {
         const row = $(`#row-${id}`);
         const imgSrc = row.find('.img-thumbnail').attr('src');
-        const imgText = row.find('td:eq(3)').text();
+        const imgText = row.find('td:eq(4)').text();
         previewHtml += `<div style="text-align:center;">
             <img src="${imgSrc}" style="width:100%;height:80px;object-fit:cover;border-radius:4px;cursor:pointer;" onclick="window.open('${imgSrc}', '_blank')">
             <small style="display:block;margin-top:4px;font-size:11px;color:#666;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(imgText || '无描述')}</small>
@@ -635,7 +714,7 @@ $(document).on('mouseup', function() {
 });
 
 $(document).on('click', 'tbody tr', function(e) {
-    if ($(e.target).closest('td').index() === 6 || $(e.target).is('button,input,img,a') || $(e.target).closest('button,a').length) {
+    if ($(e.target).closest('td').index() === 7 || $(e.target).is('button,input,img,a') || $(e.target).closest('button,a').length) {
         return;
     }
     const checkbox = $(this).find('.photo-checkbox');
@@ -670,6 +749,41 @@ $('#albumFilter').on('change', function() {
     updateSerialNumbers();
 });
 
+// 类型筛选
+$('#typeFilter').on('change', function() {
+    const selectedType = $(this).val();
+    const rows = $('#photoTbody tr');
+
+    if (selectedType === '') {
+        rows.show();
+    } else {
+        rows.each(function() {
+            const rowType = $(this).data('type');
+            if (rowType === selectedType) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    }
+
+    updateSerialNumbers();
+});
+
+// 视频预览函数
+function previewVideo(url, description) {
+    if (typeof MediaPlayer !== 'undefined' && MediaPlayer.open) {
+        MediaPlayer.open({
+            type: 'video',
+            url: url,
+            description: description
+        });
+    } else {
+        // 降级方案：在新标签页打开视频
+        window.open(url, '_blank');
+    }
+}
+
 // 更新可见行序号
 function updateSerialNumbers() {
     let num = 0;
@@ -681,6 +795,7 @@ function updateSerialNumbers() {
 </script>
 
 <script src="assets/js/selection-manager.js"></script>
+<script src="../Style/js/videoPlayer.js"></script>
 
 <?php
 include_once 'Footer.php';

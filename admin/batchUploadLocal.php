@@ -259,8 +259,8 @@ while ($row = mysqli_fetch_array($albumRes)) {
             <div class="card-body">
                 <!-- 页面标题 -->
                 <div class="batch-upload-header">
-                    <h4><i class="mdi mdi-cloud-upload"></i> 批量本地图片上传</h4>
-                    <p class="subtitle">一次性选择多个图片文件，自动压缩并上传到服务器</p>
+                    <h4><i class="mdi mdi-cloud-upload"></i> 批量本地文件上传</h4>
+                    <p class="subtitle">一次性选择多个图片或视频文件，自动处理并上传到服务器</p>
                     <span class="file-count-badge" id="fileCountBadge">已选择 0 个文件</span>
                 </div>
 
@@ -269,10 +269,10 @@ while ($row = mysqli_fetch_array($albumRes)) {
                     <div class="file-selector-icon">
                         <i class="mdi mdi-folder-multiple-image"></i>
                     </div>
-                    <h5>点击选择图片文件</h5>
-                    <p class="text-muted mb-2">支持 JPG、PNG、GIF、WEBP 格式，单个文件最大 10 MB</p>
-                    <p class="text-muted mb-0">可同时选择多个文件（按住 Ctrl/Cmd 多选）</p>
-                    <input type="file" id="fileInput" multiple accept="image/jpeg,image/png,image/gif,image/webp">
+                    <h5>点击选择图片或视频文件</h5>
+                    <p class="text-muted mb-2">图片支持 JPG、PNG、GIF、WEBP 格式，最大 10 MB</p>
+                    <p class="text-muted mb-0">视频支持 MP4、MOV、AVI 格式，最大 100 MB</p>
+                    <input type="file" id="fileInput" multiple accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/quicktime,video/x-msvideo">
                 </div>
 
                 <!-- 公共设置 -->
@@ -336,37 +336,80 @@ while ($row = mysqli_fetch_array($albumRes)) {
     </div>
 </div>
 
+<script src="../Style/js/videoThumbnail.js"></script>
 <script>
 let selectedFiles = [];
 let uploadedCount = 0;
 let isUploading = false;
 
 // 文件选择处理
-document.getElementById('fileInput').addEventListener('change', function(e) {
+document.getElementById('fileInput').addEventListener('change', async function(e) {
     const files = Array.from(e.target.files);
     if (files.length === 0) return;
 
+    // 显示处理提示
+    const container = document.getElementById('fileList');
+    container.innerHTML = '<div class="text-center text-muted py-4"><i class="mdi mdi-loading mdi-spin mr-2"></i>正在处理文件...</div>';
+    document.getElementById('fileListContainer').style.display = 'block';
+
     // 添加文件到列表
-    files.forEach(file => {
+    for (const file of files) {
+        const fileType = file.type.startsWith('video/') ? 'video' : 'image';
+
         // 验证文件类型
-        if (!file.type.match('image/(jpeg|png|gif|webp)')) {
-            alert(`文件 ${file.name} 不是支持的图片格式`);
-            return;
+        if (fileType === 'image') {
+            if (!file.type.match('image/(jpeg|png|gif|webp)')) {
+                alert(`文件 ${file.name} 不是支持的图片格式`);
+                continue;
+            }
+            // 验证图片大小
+            if (file.size > 10 * 1024 * 1024) {
+                alert(`图片 ${file.name} 超过 10 MB 限制`);
+                continue;
+            }
+        } else if (fileType === 'video') {
+            if (!file.type.match('video/(mp4|quicktime|x-msvideo)')) {
+                alert(`文件 ${file.name} 不是支持的视频格式`);
+                continue;
+            }
+            // 验证视频大小
+            if (file.size > 100 * 1024 * 1024) {
+                alert(`视频 ${file.name} 超过 100 MB 限制`);
+                continue;
+            }
+        } else {
+            alert(`文件 ${file.name} 类型不支持`);
+            continue;
         }
 
-        // 验证文件大小
-        if (file.size > 10 * 1024 * 1024) {
-            alert(`文件 ${file.name} 超过 10 MB 限制`);
-            return;
-        }
-
-        selectedFiles.push({
+        const fileItem = {
             file: file,
             id: Date.now() + Math.random(),
-            status: 'waiting', // waiting, uploading, success, error
-            message: ''
-        });
-    });
+            type: fileType,
+            status: 'waiting',
+            message: '',
+            thumbnail: null,
+            duration: null
+        };
+
+        // 如果是视频，提取缩略图和时长
+        if (fileType === 'video') {
+            await new Promise((resolve) => {
+                VideoThumbnail.extract(file, function(data) {
+                    if (data.error) {
+                        fileItem.status = 'error';
+                        fileItem.message = data.error;
+                    } else {
+                        fileItem.thumbnail = data.thumbnail;
+                        fileItem.duration = data.duration;
+                    }
+                    resolve();
+                });
+            });
+        }
+
+        selectedFiles.push(fileItem);
+    }
 
     renderFileList();
     updateUI();
@@ -383,12 +426,20 @@ function renderFileList() {
         fileItem.id = `file-${item.id}`;
 
         // 生成预览图
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const img = fileItem.querySelector('.file-preview');
-            if (img) img.src = e.target.result;
-        };
-        reader.readAsDataURL(item.file);
+        if (item.type === 'image') {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = fileItem.querySelector('.file-preview');
+                if (img) img.src = e.target.result;
+            };
+            reader.readAsDataURL(item.file);
+        } else if (item.type === 'video' && item.thumbnail) {
+            // 使用提取的视频缩略图
+            setTimeout(() => {
+                const img = fileItem.querySelector('.file-preview');
+                if (img) img.src = item.thumbnail;
+            }, 0);
+        }
 
         // 状态图标
         let statusIcon = '';
@@ -418,13 +469,21 @@ function renderFileList() {
                 break;
         }
 
+        // 文件类型图标和信息
+        const typeIcon = item.type === 'video' ? 'mdi-video' : 'mdi-image';
+        const typeText = item.type === 'video' ? '视频' : '图片';
+        const durationText = item.type === 'video' && item.duration ?
+            ` · ${VideoThumbnail.formatDuration(item.duration)}` : '';
+
         fileItem.innerHTML = `
             ${item.status === 'waiting' ? `<i class="mdi mdi-close-circle btn-remove" onclick="removeFile(${index})"></i>` : ''}
             <img src="" class="file-preview" alt="预览">
             <div class="file-info">
-                <div class="file-name">${item.file.name}</div>
-                <div class="file-size">${formatFileSize(item.file.size)}</div>
-                <input type="text" class="file-desc-input" placeholder="图片描述（可选）"
+                <div class="file-name">
+                    <i class="mdi ${typeIcon} mr-1"></i>${item.file.name}
+                </div>
+                <div class="file-size">${typeText} · ${formatFileSize(item.file.size)}${durationText}</div>
+                <input type="text" class="file-desc-input" placeholder="${item.type === 'video' ? '视频' : '图片'}描述（可选）"
                        id="desc-${item.id}" ${item.status !== 'waiting' ? 'disabled' : ''}>
             </div>
             <div class="file-status ${statusClass}">
@@ -517,7 +576,7 @@ async function startUpload() {
 
         // 上传文件
         try {
-            const result = await uploadFile(item.file, album_id, date, imgText);
+            const result = await uploadFile(item.file, album_id, date, imgText, item);
             if (result.success) {
                 item.status = 'success';
                 item.message = '';
@@ -560,13 +619,35 @@ async function startUpload() {
 }
 
 // 上传单个文件
-function uploadFile(file, album_id, imgDatd, imgText) {
+function uploadFile(file, album_id, imgDatd, imgText, item) {
     return new Promise((resolve, reject) => {
         const formData = new FormData();
-        formData.append('imageFile', file);
-        formData.append('album_id', album_id);
-        formData.append('imgDatd', imgDatd);
-        formData.append('imgText', imgText);
+
+        if (item.type === 'video') {
+            // 视频文件使用批量上传接口
+            formData.append('files[]', file);
+            formData.append('album_id', album_id);
+            formData.append('imgDatd', imgDatd);
+
+            // 添加视频缩略图和时长
+            if (item.thumbnail) {
+                formData.append('thumbnail_0', item.thumbnail);
+            }
+            if (item.duration) {
+                formData.append('duration_0', item.duration);
+            }
+
+            // 视频描述
+            if (imgText) {
+                formData.append('imgText_0', imgText);
+            }
+        } else {
+            // 图片文件使用原来的接口
+            formData.append('imageFile', file);
+            formData.append('album_id', album_id);
+            formData.append('imgDatd', imgDatd);
+            formData.append('imgText', imgText);
+        }
 
         $.ajax({
             url: 'batchUploadLocalPost.php',

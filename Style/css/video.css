@@ -1,0 +1,196 @@
+/**
+ * 视频相关样式
+ * 包含视频卡片、播放器、预览缩略图等样式
+ */
+
+/* ===================================
+   1. 视频卡片样式（前端展示页面）
+   =================================== */
+
+/* 视频卡片容器 */
+.video-card {
+    position: relative;
+    cursor: pointer;
+}
+
+/* 播放指示器（中央的播放按钮图标） */
+.video-indicator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 2;
+}
+
+.video-indicator i {
+    font-size: 48px;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    display: block;
+}
+
+/* 时长标签（右下角） */
+.video-card .duration {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+    z-index: 3;
+    pointer-events: none;
+}
+
+/* 悬停效果 */
+.video-card:hover .video-indicator i {
+    color: rgba(255, 255, 255, 1);
+    transform: scale(1.1);
+    transition: transform 0.2s ease;
+}
+
+/* ===================================
+   2. Lightbox 播放器样式
+   =================================== */
+
+/* 播放器视频元素 */
+.lightbox-video {
+    max-width: 90vw;
+    max-height: 80vh;
+    background: #000;
+}
+
+.lightbox-video:focus {
+    outline: none;
+}
+
+/* ===================================
+   3. 后台管理预览样式
+   =================================== */
+
+/* 视频预览缩略图 */
+.video-preview-thumb {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.video-preview-thumb .img-thumbnail {
+    width: 120px;
+    height: 90px;
+    object-fit: cover;
+}
+
+.video-preview-thumb i.mdi-play-circle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 32px;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+}
+
+.video-preview-thumb .duration-badge {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 1px 4px;
+    border-radius: 2px;
+    font-size: 10px;
+}
+
+.video-preview-thumb:hover {
+    opacity: 0.8;
+}
+
+/* ===================================
+   4. 视频信息展示
+   =================================== */
+
+.video-info {
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.video-info p {
+    margin: 5px 0;
+}
+
+/* ===================================
+   5. 媒体类型徽章
+   =================================== */
+
+.badge.badge-video {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.badge.badge-image {
+    background: linear-gradient(135deg, #48c6ef 0%, #6f86d6 100%);
+}
+
+/* ===================================
+   6. 响应式适配
+   =================================== */
+
+@media (max-width: 768px) {
+    /* 移动端视频卡片调整 */
+    .video-indicator i {
+        font-size: 36px;
+    }
+
+    .video-card .duration {
+        font-size: 10px;
+        padding: 1px 4px;
+    }
+
+    /* 移动端后台预览调整 */
+    .video-preview-thumb .img-thumbnail {
+        width: 80px;
+        height: 60px;
+    }
+
+    .video-preview-thumb i.mdi-play-circle {
+        font-size: 24px;
+    }
+
+    /* 移动端播放器调整 */
+    .lightbox-video {
+        max-width: 95vw;
+        max-height: 75vh;
+    }
+}
+
+@media (max-width: 480px) {
+    /* 小屏幕进一步优化 */
+    .video-indicator i {
+        font-size: 32px;
+    }
+
+    .video-card .duration {
+        font-size: 9px;
+        padding: 1px 3px;
+        bottom: 5px;
+        right: 5px;
+    }
+
+    .video-preview-thumb .img-thumbnail {
+        width: 60px;
+        height: 45px;
+    }
+
+    .video-preview-thumb i.mdi-play-circle {
+        font-size: 20px;
+    }
+
+    .video-preview-thumb .duration-badge {
+        font-size: 9px;
+        padding: 0px 3px;
+    }
+}

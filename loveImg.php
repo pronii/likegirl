@@ -5,6 +5,7 @@ include_once 'head.php';
 <head>
     <link rel="stylesheet" href="Style/css/loveImg.css?LikeGirl=<?php echo $version ?>">
     <link rel="stylesheet" href="Style/css/image-optimize.css">
+    <link rel="stylesheet" href="Style/css/video.css?v=<?php echo $version ?>">
     <meta charset="utf-8" />
     <title><?php echo $text['title'] ?> — 恋爱相册</title>
 </head>
@@ -45,6 +46,9 @@ include_once 'head.php';
     <script src="Style/js/loveAlbum.js"></script>
     <!-- ===== 图片懒加载优化脚本 ===== -->
     <script src="Style/js/loveAlbum/lazyload.js"></script>
+    <!-- ===== 视频支持模块 ===== -->
+    <script src="Style/js/videoThumbnail.js"></script>
+    <script src="Style/js/videoPlayer.js"></script>
 
     <?php
     include_once 'footer.php';

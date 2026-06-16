@@ -220,9 +220,39 @@ const LoveAlbumCore = {
 
     createPhotoElement(photo) {
         const photoId = photo.id || `photo_${Date.now()}_${Math.random()}`;
+        const mediaType = photo.type || 'image';
 
+        // === 视频卡片 ===
+        if (mediaType === 'video') {
+            const thumbnail = photo.thumbnail || photo.img;
+            const duration = this.formatDuration(photo.duration);
+
+            return `
+                <div class="img_card col-lg-4 col-md-6 col-sm-12 col-sm-x-12 photo-item video-item" data-photo-id="${photoId}" data-media-type="video">
+                    <div class="love_img photo-selectable video-card">
+                        <div class="photo-checkbox-overlay" style="display: none;">
+                            <input type="checkbox" class="photo-selection-checkbox" data-photo-id="${photoId}">
+                            <label class="checkbox-label" for="checkbox-${photoId}"></label>
+                        </div>
+                        <div class="video-thumbnail-wrapper" onclick="LoveAlbumCore.playMedia(${photoId})">
+                            <img class="video-thumbnail" src="Style/img/Loading2.gif" data-src="${thumbnail}" data-funlazy="${thumbnail}" alt="${photo.text}" loading="lazy">
+                            <div class="video-play-indicator">
+                                <i class="mdi mdi-play-circle"></i>
+                            </div>
+                            <span class="video-duration">${duration}</span>
+                        </div>
+                        <div class="words" data-tip="${photo.text}" data-tip-position="top">
+                            <i>${photo.date}</i>
+                            <span>${photo.text}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // === 图片卡片（保持原有逻辑）===
         return `
-            <div class="img_card col-lg-4 col-md-6 col-sm-12 col-sm-x-12 photo-item" data-photo-id="${photoId}">
+            <div class="img_card col-lg-4 col-md-6 col-sm-12 col-sm-x-12 photo-item" data-photo-id="${photoId}" data-media-type="image">
                 <div class="love_img photo-selectable">
                     <div class="photo-checkbox-overlay" style="display: none;">
                         <input type="checkbox" class="photo-selection-checkbox" data-photo-id="${photoId}">
@@ -248,6 +278,73 @@ const LoveAlbumCore = {
                 $img.removeAttr('data-funlazy');
             }
         });
+    },
+
+    // 播放媒体（图片或视频）
+    playMedia(photoId) {
+        console.log('🎬 播放媒体:', photoId);
+
+        const mediaList = [];
+        const $items = $('.photo-item');
+
+        // 构建媒体列表
+        $items.each(function() {
+            const $item = $(this);
+            const id = $item.attr('data-photo-id');
+            const type = $item.attr('data-media-type') || 'image';
+            const photoData = LoveAlbumState.photoDataMap.get(parseInt(id));
+
+            if (photoData) {
+                if (type === 'video') {
+                    mediaList.push({
+                        type: 'video',
+                        url: photoData.img,
+                        thumbnail: photoData.thumbnail || photoData.img,
+                        duration: photoData.duration,
+                        description: photoData.text,
+                        date: photoData.date
+                    });
+                } else {
+                    mediaList.push({
+                        type: 'image',
+                        url: photoData.img,
+                        description: photoData.text,
+                        date: photoData.date
+                    });
+                }
+            }
+        });
+
+        // 找到当前索引
+        let currentIndex = 0;
+        $items.each(function(index) {
+            if (parseInt($(this).attr('data-photo-id')) === parseInt(photoId)) {
+                currentIndex = index;
+                return false;
+            }
+        });
+
+        console.log('📋 媒体列表:', mediaList.length, '当前索引:', currentIndex);
+
+        // 调用播放器
+        if (mediaList[currentIndex]) {
+            if (typeof MediaPlayer !== 'undefined') {
+                MediaPlayer.open(mediaList[currentIndex], mediaList, currentIndex);
+            } else {
+                console.error('❌ MediaPlayer 未加载');
+            }
+        }
+    },
+
+    // 格式化时长
+    formatDuration(seconds) {
+        if (!seconds || seconds <= 0) return '00:00';
+
+        seconds = parseInt(seconds);
+        const minutes = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+
+        return (minutes < 10 ? '0' : '') + minutes + ':' + (secs < 10 ? '0' : '') + secs;
     }
 };
 
