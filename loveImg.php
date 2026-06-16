@@ -1,5 +1,7 @@
 <?php
 include_once 'head.php';
+// 强制更新 videoPlayer.js 的缓存
+$videoPlayerVersion = time();
 ?>
 
 <head>
@@ -42,13 +44,22 @@ include_once 'head.php';
         </div>
     </div>
 
-    <script src="Style/js/image-optimize.js"></script>
-    <script src="Style/js/loveAlbum.js"></script>
+    <script src="Style/js/image-optimize.js?v=<?php echo $version ?>"></script>
+    <!-- ===== 视频支持模块 - 必须在相册模块前加载 ===== -->
+    <script src="Style/js/videoThumbnail.js?v=<?php echo $version ?>"></script>
+    <script src="Style/js/videoPlayerCustom.js?v=<?php echo $videoPlayerVersion; ?>&t=<?php echo rand(); ?>"></script>
+    <!-- ===== 相册核心模块 ===== -->
+    <script src="Style/js/loveAlbum.js?v=<?php echo $version ?>"></script>
     <!-- ===== 图片懒加载优化脚本 ===== -->
-    <script src="Style/js/loveAlbum/lazyload.js"></script>
-    <!-- ===== 视频支持模块 ===== -->
-    <script src="Style/js/videoThumbnail.js"></script>
-    <script src="Style/js/videoPlayer.js"></script>
+    <script>
+    // 调试：检查 MediaPlayer 是否加载
+    if (typeof MediaPlayer !== 'undefined') {
+        console.log('✅ MediaPlayer 已成功加载');
+    } else {
+        console.error('❌ MediaPlayer 未加载，请刷新页面（Ctrl+F5）');
+    }
+    </script>
+    <script src="Style/js/loveAlbum/lazyload.js?v=<?php echo $version ?>"></script>
 
     <?php
     include_once 'footer.php';

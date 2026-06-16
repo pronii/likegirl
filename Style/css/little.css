@@ -248,11 +248,12 @@
 }
 
 
-video::-webkit-media-controls {
+/* 只在文章内容区域隐藏视频原生控件（使用自定义控件） */
+.little_texts video::-webkit-media-controls {
     display: none !important;
 }
 
-video::-webkit-media-controls-panel {
+.little_texts video::-webkit-media-controls-panel {
     display: none !important;
 }
 

@@ -60,10 +60,115 @@
     max-width: 90vw;
     max-height: 80vh;
     background: #000;
+    position: relative;
+    z-index: 1;
 }
 
 .lightbox-video:focus {
     outline: none;
+}
+
+/* ===== 使用自定义控件时，完全隐藏原生控件 ===== */
+.custom-video-controls ~ video::-webkit-media-controls,
+video.lightbox-video::-webkit-media-controls {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+.custom-video-controls ~ video::-webkit-media-controls-panel,
+video.lightbox-video::-webkit-media-controls-panel {
+    display: none !important;
+}
+
+.custom-video-controls ~ video::-webkit-media-controls-enclosure,
+video.lightbox-video::-webkit-media-controls-enclosure {
+    display: none !important;
+}
+
+/* Firefox */
+video.lightbox-video::-moz-media-controls {
+    display: none !important;
+}
+
+/* ===== Chrome/Edge 浏览器视频控件优化（仅在使用原生控件时生效）===== */
+
+/* 控件面板 - 定位在底部并加大尺寸 */
+.lightbox-video::-webkit-media-controls-panel {
+    display: flex !important;
+    opacity: 1 !important;
+    background: rgba(0, 0, 0, 0.85) !important;
+    padding: 12px 10px !important;
+    height: auto !important;
+    min-height: 50px !important;
+}
+
+/* 控件外层容器 */
+.lightbox-video::-webkit-media-controls-enclosure {
+    overflow: visible !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    background: transparent !important;
+}
+
+/* 播放按钮 */
+.lightbox-video::-webkit-media-controls-play-button {
+    display: flex !important;
+    width: 40px !important;
+    height: 40px !important;
+}
+
+/* 时间线容器 - 加大尺寸 */
+.lightbox-video::-webkit-media-controls-timeline-container {
+    display: flex !important;
+    flex: 1 !important;
+    height: 40px !important;
+    align-items: center !important;
+}
+
+/* 进度条轨道 - 加粗 */
+.lightbox-video::-webkit-media-controls-timeline {
+    flex: 1 !important;
+    height: 8px !important;
+    border-radius: 4px !important;
+    background: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* 当前时间显示 */
+.lightbox-video::-webkit-media-controls-current-time-display {
+    display: flex !important;
+    font-size: 14px !important;
+    color: white !important;
+    margin: 0 8px !important;
+}
+
+/* 剩余时间显示 */
+.lightbox-video::-webkit-media-controls-time-remaining-display {
+    display: flex !important;
+    font-size: 14px !important;
+    color: white !important;
+    margin: 0 8px !important;
+}
+
+/* 静音按钮 */
+.lightbox-video::-webkit-media-controls-mute-button {
+    display: flex !important;
+    width: 40px !important;
+    height: 40px !important;
+}
+
+/* 音量滑块 */
+.lightbox-video::-webkit-media-controls-volume-slider {
+    display: flex !important;
+    width: 80px !important;
+    height: 8px !important;
+}
+
+/* 全屏按钮 */
+.lightbox-video::-webkit-media-controls-fullscreen-button {
+    display: flex !important;
+    width: 40px !important;
+    height: 40px !important;
 }
 
 /* ===================================
