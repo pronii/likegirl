@@ -4,7 +4,11 @@ error_reporting(E_ALL);
 ini_set('display_errors', 0); // 不直接显示，避免破坏JSON
 ini_set('log_errors', 1);
 
-session_start();
+// 检查session是否已启动
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 header('Content-Type: application/json; charset=utf-8');
 
 $file = $_SERVER['PHP_SELF'];
@@ -47,10 +51,10 @@ if ($isBatchUpload) {
 
     // 创建必要的目录
     $uploadDirs = [
-        'image' => __DIR__ . '/../uploads/images/',
-        'thumb' => __DIR__ . '/../uploads/thumbs/',
-        'video' => __DIR__ . '/../uploads/videos/',
-        'video_thumb' => __DIR__ . '/../uploads/video_thumbs/'
+        'image' => dirname(__DIR__) . '/uploads/images/',
+        'thumb' => dirname(__DIR__) . '/uploads/thumbs/',
+        'video' => dirname(__DIR__) . '/uploads/videos/',
+        'video_thumb' => dirname(__DIR__) . '/uploads/video_thumbs/'
     ];
 
     foreach ($uploadDirs as $dir) {
