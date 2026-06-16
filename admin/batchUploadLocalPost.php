@@ -1,7 +1,7 @@
 <?php
 // 开启错误报告（调试用）
 error_reporting(E_ALL);
-ini_set('display_errors', 0); // 不直接显示，避免破坏JSON
+ini_set('display_errors', 1); // 临时开启显示错误
 ini_set('log_errors', 1);
 
 // 检查session是否已启动
