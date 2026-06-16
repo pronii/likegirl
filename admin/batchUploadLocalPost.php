@@ -4,6 +4,11 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1); // 临时开启显示错误
 ini_set('log_errors', 1);
 
+// 增加执行时间和内存限制（处理大视频文件）
+set_time_limit(300); // 5分钟
+ini_set('memory_limit', '256M'); // 256MB内存
+ini_set('max_execution_time', '300');
+
 // 检查session是否已启动
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -85,14 +90,18 @@ if ($isBatchUpload) {
             // ==================== 视频处理 ====================
 
             // 服务器端二次验证MIME类型（防止伪造）
-            $finfo = finfo_open(FILEINFO_MIME_TYPE);
-            $realMimeType = finfo_file($finfo, $tmpPath);
-            finfo_close($finfo);
+            // 检查 fileinfo 扩展是否可用
+            if (function_exists('finfo_open')) {
+                $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                $realMimeType = finfo_file($finfo, $tmpPath);
+                finfo_close($finfo);
 
-            if (strpos($realMimeType, 'video/') !== 0) {
-                $errors[] = "文件 {$fileName}: 文件类型不匹配（伪造的视频文件）";
-                continue;
+                if (strpos($realMimeType, 'video/') !== 0) {
+                    $errors[] = "文件 {$fileName}: 文件类型不匹配（伪造的视频文件）";
+                    continue;
+                }
             }
+            // 如果 fileinfo 不可用，跳过 MIME 类型验证（仅依赖浏览器提供的类型）
 
             // 验证视频格式
             if (!isValidVideoFile($fileName, $fileType)) {

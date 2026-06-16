@@ -150,17 +150,27 @@ function formatFileSize($bytes) {
  * @return bool 是否为允许的视频类型
  */
 function isValidVideoFile($filename, $mimeType) {
-    $allowedExtensions = ['mp4', 'avi', 'mov', 'webm', 'mkv'];
+    $allowedExtensions = ['mp4', 'avi', 'mov', 'webm', 'mkv', 'm4v', 'flv', 'wmv'];
+
+    // 扩展 MIME 类型支持（不同浏览器和系统可能返回不同的 MIME）
     $allowedMimeTypes = [
         'video/mp4',
-        'video/x-msvideo',
-        'video/quicktime',
-        'video/webm',
-        'video/x-matroska'
+        'video/x-m4v',          // MP4 变体
+        'video/x-msvideo',      // AVI
+        'video/avi',            // AVI 变体
+        'video/msvideo',        // AVI 另一种形式
+        'video/quicktime',      // MOV
+        'video/webm',           // WebM
+        'video/x-matroska',     // MKV
+        'video/mkv',            // MKV 变体
+        'video/x-flv',          // FLV
+        'video/flv',            // FLV 变体
+        'video/x-ms-wmv'        // WMV
     ];
 
     $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 
+    // 检查扩展名和 MIME 类型
     return in_array($extension, $allowedExtensions) &&
            in_array($mimeType, $allowedMimeTypes);
 }

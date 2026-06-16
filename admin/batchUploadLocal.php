@@ -724,15 +724,32 @@ function uploadFile(file, album_id, imgDatd, imgText, item) {
             processData: false,
             contentType: false,
             dataType: 'json',
+            timeout: 300000, // 5分钟超时（300秒 = 300000毫秒）
             success: function(response) {
                 resolve(response);
             },
-            error: function(xhr) {
+            error: function(xhr, status, error) {
+                console.error('上传失败:', {
+                    status: xhr.status,
+                    statusText: xhr.statusText,
+                    error: error,
+                    responseText: xhr.responseText
+                });
+
                 try {
                     const response = JSON.parse(xhr.responseText);
                     resolve(response);
                 } catch(e) {
-                    reject(new Error('网络错误'));
+                    // 提供更详细的错误信息
+                    if (status === 'timeout') {
+                        reject(new Error('上传超时，请尝试较小的文件'));
+                    } else if (xhr.status === 0) {
+                        reject(new Error('网络连接失败或请求被取消'));
+                    } else if (xhr.status === 500) {
+                        reject(new Error('服务器错误 (500): ' + (xhr.responseText || '未知错误')));
+                    } else {
+                        reject(new Error('网络错误: ' + xhr.status));
+                    }
                 }
             }
         });
