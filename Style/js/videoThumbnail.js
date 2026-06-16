@@ -5,25 +5,19 @@
 (function() {
     'use strict';
 
-    /**
-     * 视频缩略图提取器
-     */
     var VideoThumbnail = {
         /**
          * 提取视频缩略图和元数据
          * @param {File} videoFile - 视频文件对象
          * @param {Function} callback - 回调函数 callback(error, result)
-         *   result: { thumbnail: base64String, duration: seconds, width: number, height: number, fileSize: bytes }
          */
         extractVideoThumbnail: function(videoFile, callback) {
-            // 验证文件类型
             if (!videoFile || !videoFile.type.startsWith('video/')) {
                 callback(new Error('请选择有效的视频文件'), null);
                 return;
             }
 
-            // 验证文件大小（最大 100MB）
-            var maxSize = 100 * 1024 * 1024; // 100MB
+            var maxSize = 100 * 1024 * 1024;
             if (videoFile.size > maxSize) {
                 callback(new Error('视频文件大小不能超过 100MB'), null);
                 return;
@@ -34,23 +28,16 @@
             var ctx = canvas.getContext('2d');
             var objectUrl = URL.createObjectURL(videoFile);
 
-            video.muted = true; // 静音避免浏览器自动播放限制
+            video.muted = true;
             video.preload = 'metadata';
 
-            // 监听元数据加载完成事件
             video.addEventListener('loadeddata', function() {
                 try {
-                    // 设置 canvas 尺寸与视频相同
                     canvas.width = video.videoWidth;
                     canvas.height = video.videoHeight;
-
-                    // 将视频第一帧绘制到 canvas
                     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-                    // 转换为 base64 格式的 JPEG 图片（质量 0.8）
                     var thumbnail = canvas.toDataURL('image/jpeg', 0.8);
 
-                    // 构建结果对象
                     var result = {
                         thumbnail: thumbnail,
                         duration: video.duration,
@@ -60,9 +47,7 @@
                         fileName: videoFile.name
                     };
 
-                    // 清理对象 URL
                     URL.revokeObjectURL(objectUrl);
-
                     callback(null, result);
                 } catch (error) {
                     URL.revokeObjectURL(objectUrl);
@@ -70,14 +55,41 @@
                 }
             });
 
-            // 监听加载错误
             video.addEventListener('error', function() {
                 URL.revokeObjectURL(objectUrl);
                 callback(new Error('视频加载失败，请确保文件格式正确'), null);
             });
 
-            // 加载视频
             video.src = objectUrl;
+        },
+
+        /**
+         * 简化的提取方法（别名）
+         * @param {File} videoFile - 视频文件对象
+         * @param {Function} callback - 回调函数 callback(data)
+         */
+        extract: function(videoFile, callback) {
+            this.extractVideoThumbnail(videoFile, function(error, result) {
+                if (error) {
+                    callback({
+                        error: error.message || String(error),
+                        thumbnail: null,
+                        duration: null,
+                        width: null,
+                        height: null
+                    });
+                } else {
+                    callback({
+                        error: null,
+                        thumbnail: result.thumbnail,
+                        duration: Math.round(result.duration),
+                        width: result.width,
+                        height: result.height,
+                        size: result.fileSize,
+                        fileName: result.fileName
+                    });
+                }
+            });
         },
 
         /**
@@ -125,39 +137,9 @@
             }
 
             return size.toFixed(2) + ' ' + units[unitIndex];
-        },
-
-        /**
-         * 简化的提取方法（别名）
-         * 回调格式统一为：callback(data)
-         * data: { error: string|null, thumbnail: string, duration: number, width: number, height: number }
-         */
-        extract: function(videoFile, callback) {
-            this.extractVideoThumbnail(videoFile, function(error, result) {
-                if (error) {
-                    callback({
-                        error: error.message || String(error),
-                        thumbnail: null,
-                        duration: null,
-                        width: null,
-                        height: null
-                    });
-                } else {
-                    callback({
-                        error: null,
-                        thumbnail: result.thumbnail,
-                        duration: Math.round(result.duration), // 四舍五入到整数秒
-                        width: result.width,
-                        height: result.height,
-                        size: result.fileSize,
-                        fileName: result.fileName
-                    });
-                }
-            });
         }
     };
 
-    // 导出到 window 对象
     window.VideoThumbnail = VideoThumbnail;
 
 })();
