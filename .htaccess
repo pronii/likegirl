@@ -62,14 +62,14 @@ Options -Indexes
     Header unset X-Powered-By
 </IfModule>
 
-# 保护敏感文件
-<FilesMatch "(^#.*|\.bak$|\.backup$|\.old$|\.sql$|\.log$|\.txt$|config\.php|connect\.php)">
+# 保护敏感文件（优先级更高，先匹配）
+<FilesMatch "(^#.*|\.bak$|\.backup$|\.old$|\.sql$|\.log$|Config_DB\.php)$">
     Order Allow,Deny
     Deny from all
 </FilesMatch>
 
-# 允许访问特定文件
-<FilesMatch "^(index\.php|about\.php|little\.php|loveImg\.php|loveList\.php)$">
+# 允许访问所有其他 PHP 文件
+<FilesMatch "\.php$">
     Order Allow,Deny
     Allow from all
 </FilesMatch>
