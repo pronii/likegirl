@@ -29,9 +29,22 @@
             var objectUrl = URL.createObjectURL(videoFile);
 
             video.muted = true;
-            video.preload = 'metadata';
+            video.preload = 'auto'; // 改为 auto，确保加载足够数据
 
-            video.addEventListener('loadeddata', function() {
+            var hasExtracted = false; // 防止重复提取
+
+            // 监听元数据加载完成，设置跳转时间
+            video.addEventListener('loadedmetadata', function() {
+                // 跳转到 1 秒处，如果视频短于 2 秒则跳到 10% 位置
+                var seekTime = video.duration > 2 ? 1.0 : video.duration * 0.1;
+                video.currentTime = seekTime;
+            });
+
+            // 监听跳转完成事件，此时再提取缩略图
+            video.addEventListener('seeked', function() {
+                if (hasExtracted) return; // 防止重复提取
+                hasExtracted = true;
+
                 try {
                     canvas.width = video.videoWidth;
                     canvas.height = video.videoHeight;
