@@ -26,3 +26,23 @@ debug.log
 .vscode/
 .idea/
 *.code-workspace
+
+# 调试和诊断文件
+*debug*.php
+*debug*.html
+*diagnosis*.php
+*test*.php
+*test*.html
+phpinfo.php
+
+# 用户上传的内容
+uploads/images/*
+uploads/thumbs/*
+uploads/videos/*
+uploads/video_thumbs/*
+
+# 保留目录结构（允许空的 .gitkeep 文件）
+!uploads/images/.gitkeep
+!uploads/thumbs/.gitkeep
+!uploads/videos/.gitkeep
+!uploads/video_thumbs/.gitkeep
