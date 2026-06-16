@@ -325,10 +325,11 @@ if ($isBatchUpload) {
         }
     }
 
-    // 返回批量上传结果
+    // 返回批量上传结果（统一使用 success 格式）
+    $hasUploaded = count($uploadedFiles) > 0;
     echo json_encode([
-        'code' => 200,
-        'message' => '批量上传完成',
+        'success' => $hasUploaded,
+        'message' => $hasUploaded ? '批量上传完成' : '上传失败',
         'data' => [
             'uploaded' => count($uploadedFiles),
             'failed' => count($errors),
