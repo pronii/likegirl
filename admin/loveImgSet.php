@@ -11,6 +11,12 @@ $loveImg = "SELECT li.*, la.album_name FROM loveImg li
             LEFT JOIN love_album la ON li.album_id = la.id
             ORDER BY li.id desc";
 $resImg = mysqli_query($connect, $loveImg);
+
+// 检查查询是否成功
+if (!$resImg) {
+    die("查询失败: " . mysqli_error($connect));
+}
+
 $albumRes = mysqli_query($connect, "SELECT id, album_name FROM love_album ORDER BY sort_order ASC");
 ?>
 
@@ -280,6 +286,10 @@ $albumRes = mysqli_query($connect, "SELECT id, album_name FROM love_album ORDER 
                     <tbody id="photoTbody">
                     <?php
                     $SerialNumber = 0;
+                    // 重置结果集指针到开头
+                    if (mysqli_num_rows($resImg) > 0) {
+                        mysqli_data_seek($resImg, 0);
+                    }
                     while ($list = mysqli_fetch_array($resImg)) {
                         $SerialNumber++;
                         $albumName = $list['album_name'] ? $list['album_name'] : '未分类';
