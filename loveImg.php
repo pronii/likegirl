@@ -1,7 +1,8 @@
 <?php
 include_once 'head.php';
 // 强制更新 videoPlayer.js 的缓存
-$videoPlayerVersion = time();
+$videoPlayerPath = __DIR__ . '/Style/js/videoPlayerCustom.js';
+$videoPlayerVersion = file_exists($videoPlayerPath) ? filemtime($videoPlayerPath) : $version;
 ?>
 
 <head>
@@ -47,7 +48,7 @@ $videoPlayerVersion = time();
     <script src="Style/js/image-optimize.js?v=<?php echo $version ?>"></script>
     <!-- ===== 视频支持模块 - 必须在相册模块前加载 ===== -->
     <script src="Style/js/videoThumbnail.js?v=<?php echo $version ?>"></script>
-    <script src="Style/js/videoPlayerCustom.js?v=<?php echo $videoPlayerVersion; ?>&t=<?php echo rand(); ?>"></script>
+    <script src="Style/js/videoPlayerCustom.js?v=<?php echo $videoPlayerVersion; ?>"></script>
     <!-- ===== 相册核心模块 ===== -->
     <script src="Style/js/loveAlbum.js?v=<?php echo $version ?>"></script>
     <!-- ===== 图片懒加载优化脚本 ===== -->

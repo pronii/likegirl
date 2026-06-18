@@ -37,4 +37,40 @@ assert(
   'unused empty file-searching.svg should be removed'
 );
 
+const { execFileSync } = require('child_process');
+const trackedFiles = execFileSync('git', ['ls-files'], {
+  cwd: root,
+  encoding: 'utf8',
+}).split(/\r?\n/).filter(Boolean);
+
+const trackedRuntimeFiles = trackedFiles.filter(file => file.startsWith('.superpowers/'));
+assert.strictEqual(
+  trackedRuntimeFiles.length,
+  0,
+  '.superpowers runtime files should not be tracked in git'
+);
+
+const trackedUploadFiles = trackedFiles.filter(file =>
+  file.startsWith('uploads/images/') ||
+  file.startsWith('uploads/thumbs/') ||
+  file.startsWith('uploads/videos/') ||
+  file.startsWith('uploads/video_thumbs/')
+).filter(file => !file.endsWith('/.gitkeep'));
+
+assert.strictEqual(
+  trackedUploadFiles.length,
+  0,
+  'uploaded user media files should not be tracked in git'
+);
+
+const loveImg = read('loveImg.php');
+assert(
+  loveImg.includes('filemtime('),
+  'loveImg.php should use filemtime for video player cache busting'
+);
+assert(
+  !loveImg.includes('$videoPlayerVersion = time();') && !loveImg.includes('rand();'),
+  'loveImg.php should not force video player cache busting on every request'
+);
+
 console.log('Project health check passed');

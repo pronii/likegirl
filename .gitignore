@@ -27,6 +27,9 @@ debug.log
 .idea/
 *.code-workspace
 
+# Codex/Superpowers local work files
+.superpowers/
+
 # 调试和诊断文件
 *debug*.php
 *debug*.html
