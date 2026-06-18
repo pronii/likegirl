@@ -264,31 +264,67 @@ if ($diy['Pjaxkg'] == "1"):
                 setupVideoPlayer(video);
             });
 
+            function loadScriptOnce(src, globalName, callback) {
+                if (globalName && window[globalName]) {
+                    if (callback) callback();
+                    return;
+                }
+
+                const existingScript = document.querySelector('script[data-pjax-src="' + src + '"]');
+                if (existingScript) {
+                    existingScript.addEventListener('load', function() {
+                        if (callback) callback();
+                    }, { once: true });
+
+                    if (!globalName || window[globalName]) {
+                        if (callback) callback();
+                    }
+                    return;
+                }
+
+                const script = document.createElement('script');
+                script.src = src + '?t=' + Date.now();
+                script.setAttribute('data-pjax-src', src);
+                script.onload = function() {
+                    if (callback) callback();
+                };
+                script.onerror = function() {
+                    console.error('❌ 脚本加载失败:', src);
+                    $('#loading').hide();
+                    $('#albumGallery').html('<div class="col-12 text-center" style="padding: 40px; color: #dc3545;">播放器模块加载失败<br><button class="btn btn-primary mt-3" onclick="location.reload()">刷新页面</button></div>');
+                };
+                document.head.appendChild(script);
+            }
+
             // PJAX 跳转后重新初始化相册模块
             if ($('#albumGallery').length > 0) {
-                // 检查并加载 loveAlbum.js
-                if (typeof LoveAlbum === 'undefined') {
-                    // 动态加载 loveAlbum.js
-                    const script = document.createElement('script');
-                    script.src = 'Style/js/loveAlbum.js?t=' + Date.now();
-                    script.onerror = function() {
-                        console.error('❌ 相册模块加载失败');
-                        $('#loading').hide();
-                        $('#albumGallery').html('<div class="col-12 text-center" style="padding: 40px; color: #dc3545;">模块加载失败<br><button class="btn btn-primary mt-3" onclick="location.reload()">刷新页面</button></div>');
-                    };
-                    document.head.appendChild(script);
-                } else {
-                    // 模块已加载，直接初始化
-                    if (typeof initLoveAlbum === 'function') {
-                        try {
-                            initLoveAlbum();
-                        } catch (e) {
-                            console.error('❌ 相册初始化失败:', e);
-                            $('#loading').hide();
-                            $('#albumGallery').html('<div class="col-12 text-center" style="padding: 40px; color: #dc3545;">初始化失败: ' + e.message + '<br><button class="btn btn-primary mt-3" onclick="location.reload()">刷新页面</button></div>');
+                loadScriptOnce('Style/js/videoThumbnail.js', 'VideoThumbnail', function() {
+                    loadScriptOnce('Style/js/videoPlayerCustom.js', 'MediaPlayer', function() {
+                        // 检查并加载 loveAlbum.js
+                        if (typeof LoveAlbum === 'undefined') {
+                            // 动态加载 loveAlbum.js
+                            const script = document.createElement('script');
+                            script.src = 'Style/js/loveAlbum.js?t=' + Date.now();
+                            script.onerror = function() {
+                                console.error('❌ 相册模块加载失败');
+                                $('#loading').hide();
+                                $('#albumGallery').html('<div class="col-12 text-center" style="padding: 40px; color: #dc3545;">模块加载失败<br><button class="btn btn-primary mt-3" onclick="location.reload()">刷新页面</button></div>');
+                            };
+                            document.head.appendChild(script);
+                        } else {
+                            // 模块已加载，直接初始化
+                            if (typeof initLoveAlbum === 'function') {
+                                try {
+                                    initLoveAlbum();
+                                } catch (e) {
+                                    console.error('❌ 相册初始化失败:', e);
+                                    $('#loading').hide();
+                                    $('#albumGallery').html('<div class="col-12 text-center" style="padding: 40px; color: #dc3545;">初始化失败: ' + e.message + '<br><button class="btn btn-primary mt-3" onclick="location.reload()">刷新页面</button></div>');
+                                }
+                            }
                         }
-                    }
-                }
+                    });
+                });
             }
 
             initScrollButton('#MessageBtn', '#MessageArea', 800, 800);
