@@ -116,11 +116,12 @@
 /* 移动端适配 */
 @media (max-width: 768px) {
     #musicPlayer {
-        bottom: 70px;
-        right: 10px;
+        bottom: 140px;
+        right: 60px;
     }
 
     .music-control-menu {
         min-width: 200px;
+        max-width: 260px;
     }
 }

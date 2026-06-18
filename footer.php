@@ -259,7 +259,7 @@
 <!-- 音乐播放器 -->
 <!-- 注意：preconnect 已在 head.php 中设置，这里直接使用即可 -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@6.5.95/css/materialdesignicons.min.css">
-<link rel="stylesheet" href="/Style/css/music-player.css">
+<link rel="stylesheet" href="/Style/css/music-player.css?v=5.2.2">
 <script>
 // 确保在页面加载后初始化播放器
 window.addEventListener('load', function() {
