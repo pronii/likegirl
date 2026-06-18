@@ -35,6 +35,12 @@
             lightbox._keyHandler = null;
         }
 
+        // 移除旧的滑动监听
+        if (lightbox._swipeCleanup) {
+            lightbox._swipeCleanup();
+            lightbox._swipeCleanup = null;
+        }
+
         // 移除旧的导航按钮
         const oldNavButtons = lightbox.querySelectorAll('button');
         oldNavButtons.forEach(function(btn) {
@@ -49,6 +55,9 @@
 
         // 重新设置键盘监听
         setupKeyboard(lightbox, mediaList, newIndex, contentDiv);
+
+        // 重新设置滑动监听
+        setupSwipeControls(lightbox, mediaList, newIndex, contentDiv);
     }
 
     function openMediaLightbox(mediaData, mediaList, currentIndex) {
@@ -61,6 +70,7 @@
         const contentDiv = renderMedia(lightbox, mediaData);
         setupNavControls(lightbox, mediaList, currentIndex);
         setupKeyboard(lightbox, mediaList, currentIndex, contentDiv);
+        setupSwipeControls(lightbox, mediaList, currentIndex, contentDiv);
 
         lightbox.addEventListener('click', function(e) {
             if (e.target === lightbox) {
@@ -342,7 +352,7 @@
             });
             prevBtn.addEventListener('click', function(e) {
                 e.stopPropagation();
-                switchMedia(lightbox, mediaList[currentIndex - 1], mediaList, currentIndex - 1);
+                goToMedia(lightbox, mediaList, currentIndex - 1);
             });
             lightbox.appendChild(prevBtn);
         }
@@ -361,12 +371,104 @@
             });
             nextBtn.addEventListener('click', function(e) {
                 e.stopPropagation();
-                switchMedia(lightbox, mediaList[currentIndex + 1], mediaList, currentIndex + 1);
+                goToMedia(lightbox, mediaList, currentIndex + 1);
             });
             lightbox.appendChild(nextBtn);
         }
 
         console.log('✅ 导航按钮已添加到灯箱');
+    }
+
+    function goToMedia(lightbox, mediaList, targetIndex) {
+        if (!mediaList || targetIndex < 0 || targetIndex >= mediaList.length) {
+            return false;
+        }
+
+        switchMedia(lightbox, mediaList[targetIndex], mediaList, targetIndex);
+        return true;
+    }
+
+    function setupSwipeControls(lightbox, mediaList, currentIndex, contentDiv) {
+        if (!mediaList || mediaList.length <= 1) {
+            return;
+        }
+
+        const swipeTarget = contentDiv;
+        let startX = 0;
+        let startY = 0;
+        let tracking = false;
+        let pointerId = null;
+
+        function startTracking(x, y, id) {
+            startX = x;
+            startY = y;
+            pointerId = id;
+            tracking = true;
+        }
+
+        function finishTracking(x, y) {
+            if (!tracking) return;
+
+            const deltaX = x - startX;
+            const deltaY = y - startY;
+            tracking = false;
+            pointerId = null;
+
+            if (Math.abs(deltaX) < 60 || Math.abs(deltaX) < Math.abs(deltaY) * 1.2) {
+                return;
+            }
+
+            if (deltaX > 0) {
+                goToMedia(lightbox, mediaList, currentIndex - 1);
+            } else {
+                goToMedia(lightbox, mediaList, currentIndex + 1);
+            }
+        }
+
+        function onTouchStart(e) {
+            if (e.target.closest('.custom-video-controls')) {
+                return;
+            }
+            if (e.touches.length !== 1) return;
+            startTracking(e.touches[0].clientX, e.touches[0].clientY, null);
+        }
+
+        function onTouchEnd(e) {
+            if (!tracking || e.changedTouches.length === 0) return;
+            finishTracking(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+        }
+
+        function onPointerDown(e) {
+            if (e.pointerType === 'touch' || e.button !== 0 || e.target.closest('.custom-video-controls')) {
+                return;
+            }
+            startTracking(e.clientX, e.clientY, e.pointerId);
+        }
+
+        function onPointerUp(e) {
+            if (!tracking || (pointerId !== null && e.pointerId !== pointerId)) return;
+            finishTracking(e.clientX, e.clientY);
+        }
+
+        function onPointerCancel(e) {
+            if (pointerId !== null && e.pointerId !== pointerId) return;
+            tracking = false;
+            pointerId = null;
+        }
+
+        swipeTarget.addEventListener('touchstart', onTouchStart, { passive: true });
+        swipeTarget.addEventListener('touchend', onTouchEnd);
+        swipeTarget.addEventListener('pointerdown', onPointerDown);
+        swipeTarget.addEventListener('pointerup', onPointerUp);
+        swipeTarget.addEventListener('pointercancel', onPointerCancel);
+
+        lightbox._swipeCleanup = function() {
+            swipeTarget.removeEventListener('touchstart', onTouchStart);
+            swipeTarget.removeEventListener('touchend', onTouchEnd);
+            swipeTarget.removeEventListener('pointerdown', onPointerDown);
+            swipeTarget.removeEventListener('pointerup', onPointerUp);
+            swipeTarget.removeEventListener('pointercancel', onPointerCancel);
+        };
     }
 
     /**
@@ -380,10 +482,10 @@
                 closeLightbox(lightbox);
             } else if (e.key === 'ArrowLeft' && mediaList && currentIndex > 0) {
                 e.preventDefault();
-                switchMedia(lightbox, mediaList[currentIndex - 1], mediaList, currentIndex - 1);
+                goToMedia(lightbox, mediaList, currentIndex - 1);
             } else if (e.key === 'ArrowRight' && mediaList && currentIndex < mediaList.length - 1) {
                 e.preventDefault();
-                switchMedia(lightbox, mediaList[currentIndex + 1], mediaList, currentIndex + 1);
+                goToMedia(lightbox, mediaList, currentIndex + 1);
             } else if (e.key === ' ' || e.code === 'Space') {
                 if (video) {
                     e.preventDefault();
@@ -411,6 +513,11 @@
         if (lightbox._keyHandler) {
             document.removeEventListener('keydown', lightbox._keyHandler);
             lightbox._keyHandler = null;
+        }
+
+        if (lightbox._swipeCleanup) {
+            lightbox._swipeCleanup();
+            lightbox._swipeCleanup = null;
         }
 
         const video = lightbox.querySelector('video');
