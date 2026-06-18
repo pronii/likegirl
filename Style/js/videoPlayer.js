@@ -7,6 +7,11 @@
 (function() {
     'use strict';
 
+    const logger = typeof LikeGirlLog !== 'undefined' ? LikeGirlLog : {
+        log: function() {},
+        warn: function() {}
+    };
+
     /**
      * 打开媒体灯箱（图片或视频）
      * @param {Object} mediaData - 媒体数据
@@ -99,7 +104,7 @@
 
             // 加载成功提示
             video.addEventListener('loadeddata', function() {
-                console.log('MediaPlayer: 视频加载成功', mediaData.url);
+                logger.log('MediaPlayer: 视频加载成功', mediaData.url);
             });
 
             contentDiv.appendChild(video);
@@ -290,6 +295,6 @@
         open: openMediaLightbox
     };
 
-    console.log('MediaPlayer: 模块已加载');
+    logger.log('MediaPlayer: 模块已加载');
 
 })();

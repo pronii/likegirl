@@ -51,15 +51,6 @@ $videoPlayerVersion = file_exists($videoPlayerPath) ? filemtime($videoPlayerPath
     <script src="Style/js/videoPlayerCustom.js?v=<?php echo $videoPlayerVersion; ?>"></script>
     <!-- ===== 相册核心模块 ===== -->
     <script src="Style/js/loveAlbum.js?v=<?php echo $version ?>"></script>
-    <!-- ===== 图片懒加载优化脚本 ===== -->
-    <script>
-    // 调试：检查 MediaPlayer 是否加载
-    if (typeof MediaPlayer !== 'undefined') {
-        console.log('✅ MediaPlayer 已成功加载');
-    } else {
-        console.error('❌ MediaPlayer 未加载，请刷新页面（Ctrl+F5）');
-    }
-    </script>
     <script src="Style/js/loveAlbum/lazyload.js?v=<?php echo $version ?>"></script>
 
     <?php

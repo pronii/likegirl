@@ -7,6 +7,10 @@ const LoveAlbumState = {
     total: 0,
     isLoading: false,
     isAdminPage: window.location.pathname.includes('/admin/'),
+    logger: typeof LikeGirlLog !== 'undefined' ? LikeGirlLog : {
+        log: function() {},
+        warn: function() {}
+    },
 
     // 选择模式状态
     selectionMode: false,

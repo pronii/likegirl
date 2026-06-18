@@ -6,6 +6,11 @@
 (function() {
     'use strict';
 
+    const logger = typeof LikeGirlLog !== 'undefined' ? LikeGirlLog : {
+        log: function() {},
+        warn: function() {}
+    };
+
     /**
      * 切换到另一个媒体（无缝切换，不关闭UI）
      * @param {HTMLElement} lightbox - 当前灯箱
@@ -14,7 +19,7 @@
      * @param {number} newIndex - 新的索引
      */
     function switchMedia(lightbox, mediaData, mediaList, newIndex) {
-        console.log('🔄 切换媒体到索引:', newIndex);
+        logger.log('🔄 切换媒体到索引:', newIndex);
 
         // 停止当前视频
         const oldVideo = lightbox.querySelector('video');
@@ -112,7 +117,7 @@
             });
 
             video.addEventListener('loadeddata', function() {
-                console.log('MediaPlayer: 视频加载成功', mediaData.url);
+                logger.log('MediaPlayer: 视频加载成功', mediaData.url);
             });
 
             // 点击视频播放/暂停
@@ -280,7 +285,7 @@
         fullscreenBtn.addEventListener('click', function() {
             if (!document.fullscreenElement) {
                 video.requestFullscreen().catch(function(err) {
-                    console.log('全屏失败:', err);
+                    logger.warn('全屏失败:', err);
                 });
             } else {
                 document.exitFullscreen();
@@ -314,7 +319,7 @@
      */
     function setupNavControls(lightbox, mediaList, currentIndex) {
         // 调试信息
-        console.log('📊 导航按钮信息:', {
+        logger.log('📊 导航按钮信息:', {
             hasMediaList: !!mediaList,
             mediaListLength: mediaList ? mediaList.length : 0,
             currentIndex: currentIndex,
@@ -326,11 +331,11 @@
 
         const buttonHoverStyle = 'background: rgba(0, 0, 0, 0.8); border-color: rgba(255, 255, 255, 0.6); transform: scale(1.1); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);';
 
-        console.log('🔘 创建导航按钮');
+        logger.log('🔘 创建导航按钮');
 
         // 左侧"上一个"按钮
         if (mediaList && currentIndex > 0) {
-            console.log('➕ 添加"上一个"按钮（左侧）');
+            logger.log('➕ 添加"上一个"按钮（左侧）');
             const prevBtn = document.createElement('button');
             prevBtn.innerHTML = '‹'; // 使用简洁的左箭头符号
             prevBtn.style.cssText = buttonStyle + 'position: fixed; left: 30px; top: 50%; transform: translateY(-50%); z-index: 10001;';
@@ -349,7 +354,7 @@
 
         // 右侧"下一个"按钮
         if (mediaList && currentIndex < mediaList.length - 1) {
-            console.log('➕ 添加"下一个"按钮（右侧）');
+            logger.log('➕ 添加"下一个"按钮（右侧）');
             const nextBtn = document.createElement('button');
             nextBtn.innerHTML = '›'; // 使用简洁的右箭头符号
             nextBtn.style.cssText = buttonStyle + 'position: fixed; right: 30px; top: 50%; transform: translateY(-50%); z-index: 10001;';
@@ -366,7 +371,7 @@
             lightbox.appendChild(nextBtn);
         }
 
-        console.log('✅ 导航按钮已添加到灯箱');
+        logger.log('✅ 导航按钮已添加到灯箱');
     }
 
     /**
@@ -453,6 +458,6 @@
         open: openMediaLightbox
     };
 
-    console.log('MediaPlayer: 增强版模块已加载（自定义控件）');
+    logger.log('MediaPlayer: 增强版模块已加载（自定义控件）');
 
 })();

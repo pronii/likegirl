@@ -805,7 +805,7 @@ function updateSerialNumbers() {
 </script>
 
 <script src="assets/js/selection-manager.js"></script>
-<script src="../Style/js/videoPlayer.js"></script>
+<script src="../Style/js/videoPlayerCustom.js"></script>
 
 <?php
 include_once 'Footer.php';

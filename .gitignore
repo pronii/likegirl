@@ -44,6 +44,9 @@ uploads/thumbs/*
 uploads/videos/*
 uploads/video_thumbs/*
 
+# phpMyAdmin runtime cache
+phpMyAdmin4.8.5/tmp/*
+
 # 保留目录结构（允许空的 .gitkeep 文件）
 !uploads/images/.gitkeep
 !uploads/thumbs/.gitkeep

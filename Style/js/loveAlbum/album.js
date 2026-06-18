@@ -139,12 +139,12 @@ const LoveAlbumCore = {
         };
 
         $.post('getPhotos.php', postData, function(res) {
-            console.log('📷 照片加载响应:', res);
+            LoveAlbumState.logger.log('📷 照片加载响应:', res);
             LoveAlbumState.isLoading = false;
             $loading.hide();
 
             if (res.code === 200) {
-                console.log('✅ 加载照片数量:', res.data.length);
+                LoveAlbumState.logger.log('✅ 加载照片数量:', res.data.length);
                 LoveAlbumState.total = res.total;
 
                 res.data.forEach(photo => {
@@ -193,7 +193,7 @@ const LoveAlbumCore = {
     },
 
     showPhotos(photos) {
-        console.log('🖼️ 开始渲染照片:', photos.length);
+        LoveAlbumState.logger.log('🖼️ 开始渲染照片:', photos.length);
         const $gallery = $('#photoGallery');
         const startIndex = $gallery.children().length;
         const fragment = document.createDocumentFragment();
@@ -205,7 +205,7 @@ const LoveAlbumCore = {
         });
 
         $gallery[0].appendChild(fragment);
-        console.log('✅ DOM 插入完成，当前照片总数:', $gallery.children().length);
+        LoveAlbumState.logger.log('✅ DOM 插入完成，当前照片总数:', $gallery.children().length);
 
         const newItems = $gallery.children().slice(startIndex);
         newItems.each(function(index) {
@@ -282,7 +282,7 @@ const LoveAlbumCore = {
 
     // 播放媒体（图片或视频）
     playMedia(photoId) {
-        console.log('🎬 播放媒体:', photoId);
+        LoveAlbumState.logger.log('🎬 播放媒体:', photoId);
 
         const mediaList = [];
         const $items = $('.photo-item');
@@ -324,7 +324,7 @@ const LoveAlbumCore = {
             }
         });
 
-        console.log('📋 媒体列表:', mediaList.length, '当前索引:', currentIndex);
+        LoveAlbumState.logger.log('📋 媒体列表:', mediaList.length, '当前索引:', currentIndex);
 
         // 调用播放器
         if (mediaList[currentIndex]) {

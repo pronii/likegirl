@@ -89,7 +89,8 @@ const ImageLazyLoader = {
             tempImg.onerror = () => {
                 img.src = img.dataset.fallback || 'Style/img/Loading2.gif';
                 img.classList.add('error');
-                console.warn('图片加载失败:', src);
+                const logger = typeof LikeGirlLog !== 'undefined' ? LikeGirlLog : { warn: function() {} };
+                logger.warn('图片加载失败:', src);
                 this.activeCount--;
                 this.processQueue();
             };

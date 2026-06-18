@@ -63,6 +63,13 @@ assert.strictEqual(
   'uploaded user media files should not be tracked in git'
 );
 
+const trackedPhpMyAdminTempFiles = trackedFiles.filter(file => file.startsWith('phpMyAdmin4.8.5/tmp/'));
+assert.strictEqual(
+  trackedPhpMyAdminTempFiles.length,
+  0,
+  'phpMyAdmin runtime temp cache files should not be tracked in git'
+);
+
 const loveImg = read('loveImg.php');
 assert(
   loveImg.includes('filemtime('),
@@ -71,6 +78,41 @@ assert(
 assert(
   !loveImg.includes('$videoPlayerVersion = time();') && !loveImg.includes('rand();'),
   'loveImg.php should not force video player cache busting on every request'
+);
+assert(
+  !loveImg.includes('MediaPlayer 已成功加载') && !loveImg.includes('MediaPlayer 未加载，请刷新页面'),
+  'loveImg.php should not print MediaPlayer diagnostics to the browser console'
+);
+
+const quietConsoleFiles = [
+  'Style/js/loveAlbum/album.js',
+  'Style/js/loveAlbum/lazyload.js',
+  'Style/js/loveAlbum/state.js',
+  'Style/js/videoPlayer.js',
+  'Style/js/videoPlayerCustom.js',
+];
+
+quietConsoleFiles.forEach(file => {
+  const source = read(file);
+  assert(
+    !/console\.(log|warn)\s*\(/.test(source),
+    `${file} should route debug logging through LikeGirlLog instead of raw console.log/warn`
+  );
+});
+assert(
+  read('Style/js/loveAlbum/state.js').includes('logger:'),
+  'loveAlbum state should provide a quiet logger fallback for admin pages'
+);
+assert(
+  read('Style/js/videoPlayerCustom.js').includes('const logger = typeof LikeGirlLog') &&
+    read('Style/js/videoPlayer.js').includes('const logger = typeof LikeGirlLog'),
+  'video player scripts should have a quiet logger fallback when global config is absent'
+);
+
+const phpMyAdminTempPath = path.join(root, 'phpMyAdmin4.8.5/tmp');
+assert(
+  fs.existsSync(phpMyAdminTempPath),
+  'phpMyAdmin temp directory should still exist locally after removing tracked cache files'
 );
 
 console.log('Project health check passed');
