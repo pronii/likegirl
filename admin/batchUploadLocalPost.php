@@ -1,7 +1,7 @@
 <?php
 // 开启错误报告（调试用）
-error_reporting(E_ALL);
-ini_set('display_errors', 1); // 临时开启显示错误
+error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
+ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 
 // 增加执行时间和内存限制（处理大视频文件）
