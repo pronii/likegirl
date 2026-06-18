@@ -125,11 +125,11 @@
                 e.stopPropagation();
                 if (video.paused) {
                     video.play();
-                    const playBtn = videoContainer.querySelector('.play-pause-btn');
+                    const playBtn = videoContainer.querySelector('.media-control-play-toggle');
                     if (playBtn) playBtn.innerHTML = '⏸️';
                 } else {
                     video.pause();
-                    const playBtn = videoContainer.querySelector('.play-pause-btn');
+                    const playBtn = videoContainer.querySelector('.media-control-play-toggle');
                     if (playBtn) playBtn.innerHTML = '▶️';
                 }
             });
@@ -230,7 +230,7 @@
 
         // 播放/暂停按钮
         const playBtn = document.createElement('button');
-        playBtn.className = 'play-pause-btn';
+        playBtn.className = 'media-control-play-toggle';
         playBtn.innerHTML = '⏸️';
         playBtn.style.cssText = 'background: transparent; border: none; color: white; font-size: 24px; cursor: pointer; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; transition: transform 0.2s;';
         playBtn.addEventListener('click', function() {
@@ -394,11 +394,11 @@
                     e.preventDefault();
                     if (video.paused) {
                         video.play();
-                        const playBtn = contentDiv.querySelector('.play-pause-btn');
+                        const playBtn = contentDiv.querySelector('.media-control-play-toggle');
                         if (playBtn) playBtn.innerHTML = '⏸️';
                     } else {
                         video.pause();
-                        const playBtn = contentDiv.querySelector('.play-pause-btn');
+                        const playBtn = contentDiv.querySelector('.media-control-play-toggle');
                         if (playBtn) playBtn.innerHTML = '▶️';
                     }
                 }

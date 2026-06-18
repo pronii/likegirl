@@ -108,6 +108,14 @@ assert(
     read('Style/js/videoPlayer.js').includes('const logger = typeof LikeGirlLog'),
   'video player scripts should have a quiet logger fallback when global config is absent'
 );
+assert(
+  !read('Style/js/videoPlayerCustom.js').includes('play-pause-btn'),
+  'custom video player controls should not reuse the global centered play-pause-btn class'
+);
+assert(
+  read('Style/js/videoPlayerCustom.js').includes('media-control-play-toggle'),
+  'custom video player should use its own scoped play/pause control class'
+);
 
 const phpMyAdminTempPath = path.join(root, 'phpMyAdmin4.8.5/tmp');
 assert(
