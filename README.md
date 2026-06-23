@@ -1,319 +1,203 @@
-# LikeGirl v5.2.3-Stable - 情侣小站
+# LikeGirl 情侣小站
 
-<p align="center">
-  <img src="https://s1.locimg.com/2024/11/07/84df7db1ca34c.webp" alt="LikeGirl Preview" width="100%">
-</p>
+LikeGirl 是一个基于 PHP + MySQL 的情侣记录网站，用来展示恋爱主页、文章记录、留言、恋爱清单、相册图片、视频和背景音乐。项目包含前台展示页面和后台管理系统，适合部署在 phpStudy、宝塔面板、Apache 或 Nginx 环境中。
 
-> 🌟 愿得一人心，白首不相离 | 记录爱情点滴，留住美好瞬间
+当前仓库已经清理掉旧的测试脚本、临时文档和未使用的后台演示脚本，`README.md` 是项目内保留的主要说明文档。
 
----
+## 主要功能
 
-## 📖 项目简介
+### 前台页面
 
-LikeGirl（情侣小站）是一款开源的情侣记录网站，专为情侣设计，用于记录恋爱中的美好时刻。项目采用 PHP + MySQL 开发，前端使用 jQuery + Pjax 实现无刷新加载，提供流畅的用户体验。
+- `index.php`：网站首页，展示情侣信息、恋爱计时和入口导航。
+- `little.php` / `page.php`：点点滴滴文章列表和文章详情。
+- `leaving.php`：留言板，支持访客留言展示。
+- `loveImg.php`：恋爱相册，支持图片、视频、灯箱预览和左右切换。
+- `list.php`：恋爱清单，展示待完成和已完成事项。
+- `about.php`：关于我们页面，使用 BotUI 对话式展示。
 
-**v5.2.3-Stable 是本项目的当前版本（2026年6月16日更新）**
+### 媒体能力
 
----
+- 图片相册：支持相册分类、分页加载、图片预览和懒加载。
+- 视频播放：使用自定义播放器，支持播放/暂停、进度条、左右切换、全屏和键盘操作。
+- 视频缩略图：支持视频封面和缩略图管理。
+- 背景音乐：后台可维护音乐列表，前台通过接口加载播放列表。
 
-## ✨ 功能特性
+### 后台管理
 
-### 前台功能
+后台入口：`/admin/`
 
-| 功能模块 | 说明 |
-|---------|------|
-| 🏠 **首页** | 展示情侣头像、恋爱计时器、功能卡片导航 |
-| 📝 **点点滴滴** | 文章/日记记录，支持 HTML 富文本 |
-| 💬 **留言板** | 访客留言祝福，自动获取QQ头像昵称 |
-| 📸 **恋爱相册** | 图片/视频展示，支持分页加载、灯箱预览 |
-| 🎬 **视频播放器** | 自定义控件播放器，支持进度条拖动、无缝切换 |
-| 💕 **恋爱列表** | 情侣约定事件清单，支持完成状态标记 |
-| 🤖 **关于我们** | BotUI 机器人对话式展示 |
-| 🎨 **全局快捷** | 返回顶部、首页、开源地址快捷按钮 |
+- 基础设置：站点标题、情侣昵称、背景图、恋爱时间、备案和版权信息。
+- 文章管理：新增、编辑、删除点滴文章。
+- 留言管理：查看、删除留言，维护留言设置和违禁词。
+- 相册管理：新增图片/视频、修改媒体信息、分类管理、批量操作、恢复图片。
+- 批量上传：支持后台批量添加本地图片和上传图片。
+- 音乐管理：维护音乐列表和音乐接口配置。
+- 恋爱清单：维护恋爱事项列表。
+- 备份管理：创建、查看、下载、上传、恢复和删除备份。
+- IP 管理：记录访问 IP，维护黑名单。
+- 安全设置：修改管理员信息、安全码和相关配置。
+- 自定义设置：维护自定义 CSS、页头代码、页脚代码和 Pjax 开关。
 
-### 后台功能
+## 技术栈
 
-| 功能模块 | 说明 |
-|---------|------|
-| 👤 **基础设置** | 修改情侣昵称、网站标题、背景图等 |
-| 📝 **文章管理** | 添加、编辑、删除文章 |
-| 💬 **留言管理** | 查看、删除留言，设置违禁词 |
-| 📸 **相册管理** | 添加、修改、删除相册图片/视频，支持批量操作 |
-| 🎬 **视频管理** | 支持视频上传、缩略图生成、视频信息管理 |
-| 💕 **恋爱清单** | 管理恋爱事件列表 |
-| 🤖 **关于设置** | 配置关于页面对话内容 |
-| 🔒 **安全设置** | 修改密码、安全码 |
-| 🎨 **自定义** | 自定义CSS、页头页脚代码 |
-| 🚫 **IP管理** | IP黑名单管理 |
+- 后端：PHP、MySQL
+- 前端：HTML、CSS、JavaScript、jQuery、Pjax
+- 后台 UI：Bootstrap 风格后台模板
+- 富文本编辑：Editor.md
+- 图片预览：Spotlight
+- 消息提示：Toastr
+- 对话展示：BotUI
 
----
+建议环境：
 
-## 🛠️ 技术栈
+- PHP 7.2 或更高版本
+- MySQL 5.7 或更高版本
+- Apache 或 Nginx
 
-- **后端**: PHP 7.4+ / MySQL 5.7+
-- **前端**: jQuery 3.x + Pjax（无刷新加载）
-- **UI组件**:
-  - [BotUI](https://botui.org/) - 机器人对话界面
-  - [Toastr](https://github.com/CodeSeven/toastr) - 弹窗提示
-  - [NProgress](https://ricostacruz.com/nprogress/) - 进度条
-  - [Spotlight.js](https://github.com/nicholasruggeri/spotlight) - 图片灯箱
-  - [FunLazy](https://github.com/nicholasruggeri/funlazy) - 懒加载
-  - [Animate.css](https://animate.style/) - CSS动画
-  - **自定义视频播放器** - 支持进度条拖动、无缝切换、键盘控制
+## 项目结构
 
----
+```text
+.
+├── admin/                  后台管理系统
+│   ├── assets/             后台 CSS、JS、图片、字体等资源
+│   ├── editormd/           Markdown 富文本编辑器资源
+│   ├── Config_DB.php       数据库连接和安全码配置
+│   ├── connect.php         数据库连接入口
+│   ├── Database.php        数据库封装
+│   ├── Function.php        后台公共函数
+│   ├── index.php           后台首页
+│   ├── login.php           后台登录页
+│   ├── loveImgSet.php      相册媒体管理
+│   ├── musicSet.php        音乐管理
+│   ├── backupManager.php   备份管理
+│   └── ...                 其他后台功能页面和处理接口
+├── api/                    前台接口
+│   ├── getMusicList.php    音乐列表接口
+│   └── image_cache.php     图片缓存接口
+├── Botui/                  BotUI 对话组件
+├── Style/                  前台静态资源
+│   ├── css/                前台样式
+│   ├── img/                默认图片资源
+│   ├── js/                 前台脚本
+│   │   ├── loveAlbum/      相册模块脚本
+│   │   ├── music-player.js 音乐播放器
+│   │   └── videoPlayer*.js 视频播放器
+│   ├── jquery/             jQuery
+│   ├── pagelir/            图片灯箱资源
+│   └── toastr/             消息提示资源
+├── uploads/                用户上传内容目录
+│   ├── images/             原图
+│   ├── thumbs/             图片缩略图
+│   ├── videos/             视频文件
+│   └── video_thumbs/       视频缩略图
+├── backups/                本地备份目录
+├── logs/                   日志目录
+├── phpMyAdmin4.8.5/        随项目保留的 phpMyAdmin
+├── index.php               前台首页
+├── loveImg.php             恋爱相册页
+├── leaving.php             留言页
+├── list.php                恋爱清单页
+├── little.php              点滴文章列表
+├── page.php                点滴文章详情
+├── about.php               关于我们页
+├── getPhotos.php           相册媒体接口
+├── getAlbums.php           相册分类接口
+├── transferPhotos.php      图片迁移/转移处理
+├── install_complete.sql    完整数据库初始化脚本
+├── .htaccess               Apache 访问和缓存配置
+└── README.md               项目说明
+```
 
-## 🎬 视频播放器特性（v2.0）
+## 安装部署
 
-### 核心功能
-- ✅ **自定义控件** - 完全自定义的播放器界面，跨浏览器一致
-- ✅ **大号进度条** - 6-8px 高度，渐变色设计（紫→粉），鼠标悬停显示滑块
-- ✅ **点击跳转** - 直接点击进度条任意位置跳转播放
-- ✅ **无缝切换** - 切换视频无黑屏闪烁
-- ✅ **智能导航** - 圆形箭头按钮，固定在屏幕两侧垂直居中
-- ✅ **完整控制** - 播放/暂停、音量、全屏、时间显示
+1. 克隆或上传项目到网站根目录。
 
-### 交互操作
-- **播放/暂停**: 点击播放按钮 / 点击视频画面 / 按空格键
-- **跳转播放**: 点击进度条任意位置
-- **切换视频**: 点击左右圆形按钮 / 按左右箭头键
-- **关闭播放器**: 点击视频外黑色区域 / 按 ESC 键
-- **全屏模式**: 点击全屏按钮
-
-### 键盘快捷键
-- `空格` - 播放/暂停
-- `←` - 上一个视频
-- `→` - 下一个视频
-- `ESC` - 关闭播放器
-
----
-
-## 📦 安装部署
-
-### 环境要求
-
-- PHP >= 7.4
-- MySQL >= 5.7
-- Apache/Nginx Web服务器
-
-### 安装步骤
-
-1. **下载项目**
    ```bash
-   git clone https://gitee.com/kiCode111/like-girl-v5.2.0.git
+   git clone https://github.com/pronii/likegirl.git
    ```
 
-2. **导入数据库**
-   - 使用 phpMyAdmin 或 MySQL 命令行导入 `love_db.sql`
+2. 创建 MySQL 数据库，例如 `likegirl`。
 
-3. **配置数据库连接**
-   - 编辑 `admin/Config_DB.php` 文件：
+3. 导入数据库脚本：
+
+   ```text
+   install_complete.sql
+   ```
+
+4. 修改数据库配置：
+
    ```php
-   $db_address = "localhost";      // 数据库地址
-   $db_username = "your_username"; // 数据库用户名
-   $db_password = "your_password"; // 数据库密码
-   $db_name = "lovey";            // 数据库名
-   $Like_Code = "your_code";      // 安全码（请设置复杂）
+   // admin/Config_DB.php
+   $db_address = "localhost";
+   $db_username = "root";
+   $db_password = "root";
+   $db_name = "likegirl";
+   $Like_Code = "请改成自己的安全码";
    ```
 
-4. **设置目录权限**
-   - 确保网站目录有读写权限
+5. 确保这些目录可写：
 
-5. **访问网站**
-   - 前台：`http://your-domain/`
-   - 后台：`http://your-domain/admin/`
-   - 默认账号：`admin` / `love2025`
+   ```text
+   uploads/images/
+   uploads/thumbs/
+   uploads/videos/
+   uploads/video_thumbs/
+   backups/
+   logs/
+   ```
 
----
+6. 访问网站：
 
-## 🗂️ 项目结构
+   ```text
+   前台：http://你的域名/
+   后台：http://你的域名/admin/
+   ```
 
-```
-LikeGirl/
-├── admin/                  # 后台管理
-│   ├── assets/            # 后台资源文件
-│   ├── editormd/          # EditorMD编辑器
-│   ├── Config_DB.php      # 数据库配置
-│   ├── connect.php        # 数据库连接
-│   ├── Database.php       # 数据库预处理连接
-│   ├── Function.php       # 自定义函数
-│   ├── login.php          # 登录页面
-│   ├── index.php          # 后台首页
-│   └── ...                # 其他后台功能文件
-├── Botui/                  # BotUI组件
-├── Style/                  # 前端资源
-│   ├── css/               # 样式文件
-│   ├── js/                # JavaScript文件
-│   ├── img/               # 图片资源
-│   ├── Font/              # 字体图标
-│   ├── jquery/            # jQuery库
-│   ├── pagelir/           # Spotlight组件
-│   └── toastr/            # Toastr组件
-├── index.php              # 前台首页
-├── little.php             # 点点滴滴（文章列表）
-├── page.php               # 文章详情页
-├── leaving.php            # 留言板
-├── about.php              # 关于我们
-├── loveImg.php            # 恋爱相册
-├── list.php               # 恋爱列表
-├── head.php               # 公共头部
-├── footer.php             # 公共底部
-├── ip.php                 # IP记录
-├── ipjc.php               # IP检测
-├── love_db.sql            # 数据库SQL文件
-└── README.md              # 项目说明
+默认后台账号来自 `install_complete.sql`：
+
+```text
+用户名：admin
+密码：love2025
 ```
 
----
+首次部署后请立即修改后台密码和 `admin/Config_DB.php` 中的安全码。
 
-## 📊 数据库结构
+## 数据库表
 
-| 表名 | 说明 |
-|------|------|
-| `text` | 网站基本信息（标题、情侣昵称、背景图等） |
-| `article` | 文章/日记内容 |
+`install_complete.sql` 当前包含这些主要表：
+
+| 表名 | 用途 |
+| --- | --- |
+| `text` | 网站基础信息 |
+| `article` | 点滴文章 |
 | `leaving` | 留言数据 |
-| `lovelist` | 恋爱事件列表 |
-| `loveImg` | 恋爱相册图片 |
-| `about` | 关于页面配置 |
-| `login` | 管理员登录信息 |
-| `diySet` | 自定义设置（CSS、页头页脚） |
-| `leavSet` | 留言设置（违禁词、截取长度） |
-| `IPerror` | IP黑名单 |
+| `leavSet` | 留言设置 |
+| `lovelist` | 恋爱清单 |
+| `loveImg` | 相册图片和视频 |
+| `love_album` | 相册分类 |
+| `music` | 音乐列表 |
+| `music_api_config` | 音乐接口配置 |
+| `about` | 关于页面内容 |
+| `login` | 管理员账号 |
+| `diySet` | 自定义代码和样式 |
+| `IPerror` | IP 黑名单 |
 | `warning` | 安全日志 |
 
----
+## 上传和备份
 
-## 🔧 主要配置
+- 用户上传内容位于 `uploads/`，其中图片、视频和缩略图默认不提交到 Git。
+- 后台备份文件位于 `backups/`，默认不提交到 Git。
+- 访问日志 `ip.txt` 默认不提交到 Git。
+- 调试、测试、诊断类临时文件已在 `.gitignore` 中忽略。
 
-### 修改网站信息
+## 维护说明
 
-登录后台 → 基础设置，可修改：
-- 男女主角昵称
-- 网站标题和Logo
-- 恋爱开始时间
-- 首页背景图片
-- 网站备案号和版权信息
+- 项目主配置文件是 `admin/Config_DB.php`。
+- 前台公共头部和底部分别是 `head.php`、`footer.php`。
+- 相册前台核心逻辑在 `Style/js/loveAlbum/`。
+- 自定义视频播放逻辑在 `Style/js/videoPlayer.js`、`Style/js/videoPlayerCustom.js` 和相册模块中配合使用。
+- 后台仍在使用的演示命名脚本只有 `admin/assets/js/pages/demo.datatable-init.js` 和 `admin/assets/js/pages/demo.toastr.js`，其他未引用的后台 demo 脚本已删除。
 
-### 修改密码
+## 许可和声明
 
-登录后台 → 安全设置，需要输入**安全码**才能修改：
-- 管理员密码
-- 安全码本身
-
-### 自定义样式
-
-登录后台 → 自定义设置：
-- **页头代码**: 添加自定义 `<head>` 内容
-- **页脚代码**: 添加自定义 `</body>` 前内容
-- **自定义CSS**: 添加全局样式
-- **Pjax开关**: 启用/禁用无刷新加载
-- **高斯模糊**: 启用/禁用背景模糊效果
-
----
-
-## 📄 更新日志
-
-### v5.2.3-Stable + 视频播放器 v2.0 (2026-06-16)
-
-**🎬 视频播放器 v2.0 重大更新**
-
-✨ **新增功能**
-- 全新自定义视频播放器控件，替代浏览器原生控件
-- 更大更醒目的进度条（6-8px 高度，紫→粉渐变色）
-- 鼠标悬停进度条显示白色滑块，可拖动跳转
-- 左右圆形导航按钮，固定在屏幕两侧垂直居中
-- 无缝切换视频，无闪烁黑屏
-- 点击视频画面播放/暂停
-- 点击空白区域关闭播放器
-- 完整的键盘快捷键支持（空格、左右箭头、ESC）
-
-🐛 **Bug 修复**
-- 修复进度条不显示问题（CSS 全局规则冲突）
-- 修复 MediaPlayer 未加载问题（缓存和编码问题）
-- 修复进度条位置错误（显示在上方）
-- 修复视频切换时的闪烁问题
-
-🎨 **视觉优化**
-- 渐变色进度条设计
-- 圆形导航按钮（64x64px）
-- 优化背景透明度和控件对比度
-- 按钮悬停放大效果
-
----
-
-### v5.2.3-Stable (2026-06-09)
-
-**✨ 新增功能**
-- 后台照片管理批量操作功能：批量删除、批量转移相册
-- 表格式数据展示，支持复选框全选、跨页全选
-- 浮动批量操作栏，实时显示已选数量
-- 照片恢复功能（软删除机制）
-- 后台选择管理器和撤销管理器
-
-**♻️ 架构重构**
-- 前后台功能完全分离：前台纯浏览模式，后台完整管理功能
-- JavaScript智能检测页面类型（`isAdminPage`），自动启用/禁用相应功能
-- 优化代码结构，统一错误处理和日志输出
-
-**🐛 Bug修复**
-- 修复前台页面看不到相册的问题（`exitSelectionMode`函数优化）
-- 修复留言管理删除链接bug
-- 修复批量操作后页面刷新问题（使用DataTables API）
-- 优化SQL注入防护和数据库操作安全性
-
-**🎨 UI优化**
-- 后台管理界面采用表格布局，数据一目了然
-- 选中行高亮显示（浅蓝色背景）
-- 响应式设计，适配各种屏幕尺寸
-- 优化用户交互反馈和操作提示
-
-### v5.2.2-Stable (2026-06-01)
-- 新增相册图片批量操作功能（批量删除、批量转移相册）
-- 优化相册管理界面，增加批量选择面板
-- 批量添加图片功能优化：图片描述字段改为非必填项
-- 修复留言管理删除链接缺少等号的 bug
-- 优化相册加载日志输出，规范代码格式
-- 图片查询接口（getPhotos.php）新增返回 id 字段
-
-### v5.2.1-Stable (2024-11-07)
-- 新增全局快捷功能（返回首页、返回顶部、开源地址入口）
-- 恋爱事件未完成项标题色弱化处理
-- 相册升级分页加载与动态加载更多功能
-- 导航栏文案过长时自动触发 ToolTip 提示
-- 留言板新增游客身份标识
-
-### v5.2.0
-- 全新UI界面设计
-- 优化移动端适配
-- 新增Pjax无刷新加载
-
----
-
-## ⚠️ 项目声明
-
-1. **本项目完全免费**，禁止以任何形式出售
-2. 可用于学习交流，欢迎二次开发
-3. 请保留版权信息（前端页面底部）
-4. 开源地址：[Gitee](https://gitee.com/kiCode111/like-girl-v5.2.0)
-
----
-
-## 📧 联系作者
-
-- **作者**: Ki
-- **QQ**: 3439780232
-- **邮箱**: mail@kikiw.cn
-- **博客**: [blog.kikiw.cn](https://blog.kikiw.cn)
-
----
-
-## 🙏 致谢
-
-感谢所有支持 LikeGirl 项目的用户，愿每一对情侣都能白首不相离。
-
----
-
-<p align="center">
-  <img src="https://s1.locimg.com/2024/11/07/9ab5cd34a4e5d.webp" alt="LikeGirl" width="80%">
-</p>
+本项目保留原 LikeGirl 项目版权声明，适合学习、交流和自用部署。请勿将项目以任何形式倒卖，二次开发时请保留必要的版权信息。
