@@ -86,8 +86,6 @@ LikeGirl（情侣小站）是一款开源的情侣记录网站，专为情侣设
 - `→` - 下一个视频
 - `ESC` - 关闭播放器
 
-> 📖 详细说明请查看 [VIDEO_PLAYER_V2_CHANGELOG.md](VIDEO_PLAYER_V2_CHANGELOG.md)
-
 ---
 
 ## 📦 安装部署
@@ -241,9 +239,6 @@ LikeGirl/
 - 圆形导航按钮（64x64px）
 - 优化背景透明度和控件对比度
 - 按钮悬停放大效果
-
-📝 **详细文档**
-- [VIDEO_PLAYER_V2_CHANGELOG.md](VIDEO_PLAYER_V2_CHANGELOG.md) - 完整更新文档
 
 ---
 
