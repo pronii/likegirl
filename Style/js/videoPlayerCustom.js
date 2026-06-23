@@ -6,6 +6,42 @@
 (function() {
     'use strict';
 
+    const SWITCH_TRANSITION_MS = 240;
+
+    function cleanupLightboxHandlers(lightbox) {
+        if (lightbox._keyHandler) {
+            document.removeEventListener('keydown', lightbox._keyHandler);
+            lightbox._keyHandler = null;
+        }
+
+        if (lightbox._swipeCleanup) {
+            lightbox._swipeCleanup();
+            lightbox._swipeCleanup = null;
+        }
+    }
+
+    function releaseVideo(video) {
+        if (!video) return;
+        video.pause();
+        video.removeAttribute('src');
+        video.load();
+    }
+
+    function animateContentIn(contentDiv, direction) {
+        const offset = direction === 'prev' ? '-24px' : '24px';
+        contentDiv.classList.add('is-switching-in');
+        contentDiv.style.opacity = '0';
+        contentDiv.style.transform = 'translateX(' + offset + ') scale(0.985)';
+
+        requestAnimationFrame(function() {
+            contentDiv.style.opacity = '1';
+            contentDiv.style.transform = 'translateX(0) scale(1)';
+            setTimeout(function() {
+                contentDiv.classList.remove('is-switching-in');
+            }, SWITCH_TRANSITION_MS);
+        });
+    }
+
     /**
      * 切换到另一个媒体（无缝切换，不关闭UI）
      * @param {HTMLElement} lightbox - 当前灯箱
@@ -14,50 +50,52 @@
      * @param {number} newIndex - 新的索引
      */
     function switchMedia(lightbox, mediaData, mediaList, newIndex) {
-        console.log('🔄 切换媒体到索引:', newIndex);
+        console.log('MediaPlayer: switching media index:', newIndex);
 
-        // 停止当前视频
-        const oldVideo = lightbox.querySelector('video');
-        if (oldVideo) {
-            oldVideo.pause();
-            oldVideo.src = '';
+        if (lightbox._isSwitching) {
+            return;
         }
 
-        // 找到内容容器并清空
+        lightbox._isSwitching = true;
+        const previousIndex = typeof lightbox._currentIndex === 'number' ? lightbox._currentIndex : newIndex;
+        const direction = newIndex < previousIndex ? 'prev' : 'next';
         const oldContent = lightbox.querySelector('.lightbox-content');
-        if (oldContent) {
-            oldContent.remove();
-        }
+        const oldVideo = oldContent ? oldContent.querySelector('video') : null;
 
-        // 移除旧的键盘监听
-        if (lightbox._keyHandler) {
-            document.removeEventListener('keydown', lightbox._keyHandler);
-            lightbox._keyHandler = null;
-        }
+        cleanupLightboxHandlers(lightbox);
 
-        // 移除旧的滑动监听
-        if (lightbox._swipeCleanup) {
-            lightbox._swipeCleanup();
-            lightbox._swipeCleanup = null;
-        }
-
-        // 移除旧的导航按钮
-        const oldNavButtons = lightbox.querySelectorAll('button');
+        const oldNavButtons = lightbox.querySelectorAll('.media-nav-button');
         oldNavButtons.forEach(function(btn) {
             btn.remove();
         });
 
-        // 渲染新的媒体内容
-        const contentDiv = renderMedia(lightbox, mediaData);
+        if (oldVideo) {
+            oldVideo.pause();
+        }
 
-        // 重新设置导航按钮
-        setupNavControls(lightbox, mediaList, newIndex);
+        if (oldContent) {
+            oldContent.classList.add('is-switching-out');
+            oldContent.style.opacity = '0';
+            oldContent.style.transform = 'translateX(' + (direction === 'prev' ? '24px' : '-24px') + ') scale(0.985)';
+        }
 
-        // 重新设置键盘监听
-        setupKeyboard(lightbox, mediaList, newIndex, contentDiv);
+        setTimeout(function() {
+            releaseVideo(oldVideo);
 
-        // 重新设置滑动监听
-        setupSwipeControls(lightbox, mediaList, newIndex, contentDiv);
+            if (oldContent && oldContent.parentNode) {
+                oldContent.remove();
+            }
+
+            const contentDiv = renderMedia(lightbox, mediaData);
+            animateContentIn(contentDiv, direction);
+
+            setupNavControls(lightbox, mediaList, newIndex);
+            setupKeyboard(lightbox, mediaList, newIndex, contentDiv);
+            setupSwipeControls(lightbox, mediaList, newIndex, contentDiv);
+
+            lightbox._currentIndex = newIndex;
+            lightbox._isSwitching = false;
+        }, SWITCH_TRANSITION_MS);
     }
 
     function openMediaLightbox(mediaData, mediaList, currentIndex) {
@@ -67,6 +105,7 @@
         }
 
         const lightbox = createLightbox();
+        lightbox._currentIndex = currentIndex;
         const contentDiv = renderMedia(lightbox, mediaData);
         setupNavControls(lightbox, mediaList, currentIndex);
         setupKeyboard(lightbox, mediaList, currentIndex, contentDiv);
@@ -98,7 +137,7 @@
     function renderMedia(lightbox, mediaData) {
         const contentDiv = document.createElement('div');
         contentDiv.className = 'lightbox-content';
-        contentDiv.style.cssText = 'display: flex; flex-direction: column; align-items: center; width: 90vw; max-height: 85vh; gap: 0;';
+        contentDiv.style.cssText = 'display: flex; flex-direction: column; align-items: center; width: 90vw; max-height: 85vh; gap: 0; opacity: 1; transform: translateX(0) scale(1); transition: opacity ' + SWITCH_TRANSITION_MS + 'ms ease, transform ' + SWITCH_TRANSITION_MS + 'ms ease; will-change: opacity, transform;';
 
         if (mediaData.type === 'video') {
             const videoContainer = document.createElement('div');
@@ -342,6 +381,7 @@
         if (mediaList && currentIndex > 0) {
             console.log('➕ 添加"上一个"按钮（左侧）');
             const prevBtn = document.createElement('button');
+            prevBtn.className = 'media-nav-button media-nav-prev';
             prevBtn.innerHTML = '‹'; // 使用简洁的左箭头符号
             prevBtn.style.cssText = buttonStyle + 'position: fixed; left: 30px; top: 50%; transform: translateY(-50%); z-index: 10001;';
             prevBtn.addEventListener('mouseenter', function() {
@@ -361,6 +401,7 @@
         if (mediaList && currentIndex < mediaList.length - 1) {
             console.log('➕ 添加"下一个"按钮（右侧）');
             const nextBtn = document.createElement('button');
+            nextBtn.className = 'media-nav-button media-nav-next';
             nextBtn.innerHTML = '›'; // 使用简洁的右箭头符号
             nextBtn.style.cssText = buttonStyle + 'position: fixed; right: 30px; top: 50%; transform: translateY(-50%); z-index: 10001;';
             nextBtn.addEventListener('mouseenter', function() {
@@ -510,22 +551,10 @@
      * 关闭灯箱并清理资源
      */
     function closeLightbox(lightbox) {
-        if (lightbox._keyHandler) {
-            document.removeEventListener('keydown', lightbox._keyHandler);
-            lightbox._keyHandler = null;
-        }
-
-        if (lightbox._swipeCleanup) {
-            lightbox._swipeCleanup();
-            lightbox._swipeCleanup = null;
-        }
+        cleanupLightboxHandlers(lightbox);
 
         const video = lightbox.querySelector('video');
-        if (video) {
-            video.pause();
-            video.src = '';
-            video.load();
-        }
+        releaseVideo(video);
 
         lightbox.style.opacity = '0';
 
